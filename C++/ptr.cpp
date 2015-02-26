@@ -10,6 +10,10 @@ void prout()
     //On écrit dans la case mémoire pointée par le pointeur 'pointeur'
     cout << "Vous avez " << *pointeur << " ans." << endl;
     cout << "adresse pointeur" << pointeur << endl;
+    // Test sur les pointeurs
+    *pointeur = 42;
+    cout << "Vous avez " << *pointeur << " ans." << endl;
+    cout << "adresse pointeur" << pointeur << endl;
     //On utilise à nouveau *pointeur
     delete pointeur;   //Ne pas oublier de libérer la mémoire
     pointeur = 0;       //Et de faire pointer le pointeur vers rien
