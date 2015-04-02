@@ -2,7 +2,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <boost/iostreams/device/mapped_file.hpp>
 
+/*
+Function for tokenize a line of csv file, return the passed contained with data
+*/
 template <class ContainerT>
 void tokenize(const std::string& str, ContainerT& tokens, const std::string& delimiters = " ", bool trimEmpty = false)
 {
@@ -30,8 +34,12 @@ void tokenize(const std::string& str, ContainerT& tokens, const std::string& del
 	}
 }
 
+/*
+Read line by line a csv file
+*/
 int reader(const std::string& filepath) 
 {
+	int i {0};
 	std::string line;
 	std::ifstream myfile(filepath);
 	if (myfile.is_open())
@@ -40,18 +48,45 @@ int reader(const std::string& filepath)
 		{
 			std::vector<std::string> tk_list ;
 			tokenize(line, tk_list, ",");
-			std::cout << "Content of list      : " << line << '\n';
+			std::cout << "Content of line      : " << line << '\n';
 			std::cout << "Fist fields of line  : " << tk_list[0] << '\n';
+			i++;
 		}
 		myfile.close();
+		std::cout << "Number of line parsed : " << i << '\n';
 	}
 	else std::cout << "Unable to open file";
 
 	return 0;
 }
 
+/*
+Play with memory map file from Boost
+*/
+void memory_mapped_file(const char * filename)
+{
+	// Create a file mapping
+	boost::iostreams::mapped_file m_file(filename, boost::iostreams::mapped_file::readonly);
+	auto f = m_file.const_data();    //return a pointer to the first byte of data 
+	auto l = f + m_file.size();
+	
+	//std::cout << "File data : " << f << '\n';
+	std::cout << "File size : " << m_file.size() << '\n';
+
+	uintmax_t m_numLines {0};
+	while (f && f!=l)
+	{
+		if ((f = static_cast<const char *>(memchr(f, '\n', l-f))))
+		{
+			m_numLines++, f++;
+		}
+	}
+	std::cout << "Number of lines = " << m_numLines << '\n';
+}
+
 int main() 
 {
-	std::string fileName ("/home/arnaud/Desktop/asso_gene_genome_goid.csv");
-	reader(fileName);
+	std::string fileName ("/home/arnaud/Desktop/SUBSET 1.1.csv");
+	//reader(fileName);
+	memory_mapped_file(fileName.c_str());
 }
