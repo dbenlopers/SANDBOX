@@ -8,10 +8,10 @@
 #include <string>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
-#include "well.h"
-#include "plate.h"
-#include "replicat.h"
-#include "include/csv.h"
+#include "core/well.h"
+#include "core/plate.h"
+#include "core/replicat.h"
+#include "io/csv.h"
 
 namespace
 {

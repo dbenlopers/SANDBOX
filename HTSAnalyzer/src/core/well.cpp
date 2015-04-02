@@ -9,7 +9,7 @@
 #include <iterator>
 #include <algorithm>
 #include "well.h"
-#include "include/stat.h"
+#include "stat/stat.h"
 
 // default constructor
 well::well()
