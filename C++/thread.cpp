@@ -19,6 +19,10 @@ int main()
 {
     std::vector<int> log{20,24,37,42,23,45,37};
     auto res = std::async(std::launch::async, transmit_log, log);
+    for (int i=0; i<5; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(77));
+        std::cout << "do something else..." << std::endl;
+    }
     size_t items = res.get();
     std::cout << "# " << items << std::endl;
 }
