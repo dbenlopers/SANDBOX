@@ -123,8 +123,6 @@ int main(int argc, char** argv)
 		std::cout << "Vector median : " << prout.get_median() << std::endl;
 		std::cout << "Vector mad : " << prout.get_mad() << std::endl;
 		
-		csv::CSVReader("test/testcsv.csv");
-		csv::CSVReader("test/merge2.csv");
 		
 	}
 	catch(std::exception& e)
