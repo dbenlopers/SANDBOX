@@ -1,4 +1,0 @@
-This program is made to analyze HTS data in csv format.
-
-
-UNDER HEAVY DEVELOPMENT !!
