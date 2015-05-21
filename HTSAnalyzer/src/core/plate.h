@@ -1,24 +1,22 @@
 #ifndef DEF_PLATE
 #define DEF_PLATE
 
+#include <map>
 #include <string>
-#include <vector>
-#include "well.h"
+#include "replica.h"
 
 class plate
 {
-	private:
-        std::vector<std::vector<well> > Plate;
-        std::string Name;
-        std::vector<std::vector< std::string> > PlateSetup;
-        int SizeCol, SizeRow;
-	
-	public:
-        plate(int row, int col);
+    private:
+        std::map <std::string, replica> replicaList;
+        int nbRep;
+        
+    public:
+        plate();
         ~plate();
-        void add_well(well &Well);
-        void print();
-        std::vector<std::vector<double>> getMeanPlate();
-        std::vector<std::vector<double>> getMedianPlate();
+        void addReplica(replica &Replica);
+        void removeReplica(std::string replicaName);
+
 };
+
 #endif

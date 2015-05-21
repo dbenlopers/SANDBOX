@@ -10,7 +10,7 @@
 #include <boost/filesystem.hpp>
 #include "core/well.h"
 #include "core/plate.h"
-#include "core/replicat.h"
+#include "core/replica.h"
 #include "io/csv.h"
 
 namespace
@@ -107,21 +107,21 @@ int main(int argc, char** argv)
         
         
 		//sandbox zone
-		well prout;
-		prout.add_value(10.6514);
-		prout.add_value(45.0);
-		prout.add_value(25.0);
-		prout.add_value(15.2514);
-		prout.add_value(15.54);
-		prout.add_value(55.36);
-		std::vector<double> tmp2 = prout.get_data();
+		well wellTest;
+		wellTest.add_value(10.6514);
+		wellTest.add_value(45.0);
+		wellTest.add_value(25.0);
+		wellTest.add_value(15.2514);
+		wellTest.add_value(15.54);
+		wellTest.add_value(55.36);
+		std::vector<double> tmp2 = wellTest.get_data();
 		std::cout << "Size of the vector : " << tmp2.size() << std::endl;
-		prout.print();
-		std::cout << "Vector mean : " << prout.get_mean() << std::endl;
-		std::cout << "Vector standard deviation : " << prout.get_std() << std::endl;
-		std::cout << "Vector variance : " << prout.get_var() << std::endl;
-		std::cout << "Vector median : " << prout.get_median() << std::endl;
-		std::cout << "Vector mad : " << prout.get_mad() << std::endl;
+		wellTest.print();
+		std::cout << "Vector mean : " << wellTest.get_mean() << std::endl;
+		std::cout << "Vector standard deviation : " << wellTest.get_std() << std::endl;
+		std::cout << "Vector variance : " << wellTest.get_var() << std::endl;
+		std::cout << "Vector median : " << wellTest.get_median() << std::endl;
+		std::cout << "Vector mad : " << wellTest.get_mad() << std::endl;
 		
 		
 	}

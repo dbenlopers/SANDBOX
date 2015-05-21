@@ -1,8 +1,0 @@
-CLI : boost:program_options
-
-dataframe : std::vector for storing data by well
-
-
-
-BUG :
-    -median of well don't working
