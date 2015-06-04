@@ -1,6 +1,5 @@
-/* This program is for HTS data analyze
- *
- * UNDER HEAVY DEVELOPPEMENT
+/* 
+ * Play with boost fileUNDER HEAVY DEVELOPPEMENT
  */
 #include <stdio.h>
 #include <iostream>
@@ -8,10 +7,6 @@
 #include <string>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
-#include "core/well.h"
-#include "core/plate.h"
-#include "core/replica.h"
-#include "io/csv.h"
 
 namespace
 {
@@ -32,13 +27,7 @@ int main(int argc, char** argv)
 		po::options_description desc;
 		desc.add_options()
 			("help,h", "Print help messages")
-			("input,i", po::value<std::string>(), "Input directory")
-			("output,o", po::value<std::string>(), "Output directory")
-			("neg,n", po::value<std::string>(), "Negative control")
-			("pos,p", po::value<std::string>(), "Positive control")
-			("feat,f", po::value<std::vector<std::string> >(), "Feature (col) to analyze")
-			("thres,t", po::value<int>(), "Threshold");
-
+			("input,i", po::value<std::string>(), "Input directory");
 
 		po::variables_map vm;
         po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -103,26 +92,6 @@ int main(int argc, char** argv)
         {
           std::cout << ex.what() << '\n';
         }
-
-        
-        
-		//sandbox zone
-		well wellTest;
-		wellTest.add_value(10.6514);
-		wellTest.add_value(45.0);
-		wellTest.add_value(25.0);
-		wellTest.add_value(15.2514);
-		wellTest.add_value(15.54);
-		wellTest.add_value(55.36);
-		std::vector<double> tmp2 = wellTest.get_data();
-		std::cout << "Size of the vector : " << tmp2.size() << std::endl;
-		wellTest.print();
-		std::cout << "Vector mean : " << wellTest.get_mean() << std::endl;
-		std::cout << "Vector standard deviation : " << wellTest.get_std() << std::endl;
-		std::cout << "Vector variance : " << wellTest.get_var() << std::endl;
-		std::cout << "Vector median : " << wellTest.get_median() << std::endl;
-		std::cout << "Vector mad : " << wellTest.get_mad() << std::endl;
-		
 		
 	}
 	catch(std::exception& e)
