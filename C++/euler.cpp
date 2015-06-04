@@ -17,22 +17,18 @@ void prob1()
 	std::vector<int> list;
 	int range = 1000 ;
 	int i ;
-	int somme2 ;
 	for ( i = 1; i < range; i++)
 		if ( i % 3 == 0) 
 		{
 			list.push_back(i);
-			somme2 += i;
 		}
 		else if ( i % 5 ==0)
 		{
 			list.push_back(i);
-			somme2 +=i;
 		}
 	int somme = std::accumulate(list.begin(), list.end(), 0);
 	std::cout << "Euler problem 1 results: "<< std::endl;
 	std::cout << somme << std::endl;
-	std::cout << somme2 << std::endl;
 }
 
 /*
@@ -103,7 +99,7 @@ void prob2alias()
 }
 
 /*
- * Euler problem 3 alias
+ * Euler problem 3 
  */
 void prob3()
 {
@@ -142,12 +138,23 @@ void prob3()
 	}
 }
 
+/*
+ * Euler problem 4
+ */
+void prob4()
+{
+
+}
 
 int main()
 {
+    //cout << "Problem 1" << endl;
 	//prob1();
+	//cout << "Problem 2" << endl;
 	//prob2();
 	//prob2alias();
-	prob3();
+	//cout << "Problem 3" << endl;
+	//prob3();
+	prob4();
 	return 0;
 }

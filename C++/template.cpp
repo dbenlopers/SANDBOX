@@ -40,3 +40,4 @@ int main(int argc, char** argv)
     std::cout << "Vector mean : " << stat::mean(log) << std::endl;
     std::cout << "Vector std : " << stat::std(log) << std::endl;
 }
+
