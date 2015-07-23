@@ -1,0 +1,129 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{color,pdfcolmk}
+\usepackage{amssymb,amsmath}
+\usepackage{afterpage}
+\setlength{\hoffset}{-18pt}        
+\setlength{\oddsidemargin}{0pt} % Marge gauche sur pages impaires
+\setlength{\evensidemargin}{9pt} % Marge gauche sur pages paires
+\setlength{\marginparwidth}{54pt} % Largeur de note dans la marge
+\setlength{\textwidth}{481pt} % Largeur de la zone de texte (17cm)
+\setlength{\voffset}{-18pt} % Bon pour DOS
+\setlength{\marginparsep}{7pt} % Séparation de la marge
+\setlength{\topmargin}{0pt} % Pas de marge en haut
+\setlength{\headheight}{13pt} % Haut de page
+\setlength{\headsep}{10pt} % Entre le haut de page et le texte
+\setlength{\footskip}{27pt} % Bas de page + séparation
+\setlength{\textheight}{708pt} % Hauteur de la zone de texte (25cm)
+
+
+\author{KOPP Arnaud}
+
+\title {TCA Plate Analysis using CELLTCA and R}
+
+\begin{document}
+\maketitle
+
+
+
+
+\section{prerequisite}
+We need to know one RefSamp (neg samp), one Pos Samp (posSamp) and the columns ( of the data ) to analyze.
+
+\bigskip
+
+R PACKAGE TO INSTAL:
+\begin{itemize}
+  \item limma (BioConductor)
+  \item prada (BioConductor)
+  \item bioDist (BioConductor)
+  \item grid
+  \item e1071
+  \item DAAG
+  \item fitdistrplus
+  \item FactoMineR
+  \item ggplot2 (graphics)
+  \item reshape2 (graphics)
+  \item fields
+\end{itemize}
+
+
+\subsection*{Hit identification}
+
+
+\section{Methods}
+After plate-wise quantile-quantile normalization, gene are selected according to how they differ from
+the negative condition. We name positive cells, cells that are more likely to be found in the positive 
+control condition and negative cells, the ones that are similar the cells in the negative control
+condition. Genes are selected based on the their difference to the negative control in terms of
+number of positive cells. To quantify the likelyhood of a cell to be positive or negative, we 
+used a supervised learning approach. More specifically, we apply a logistic regression using 
+the data from the positive and the negative controls. For every cell $c_{i}$, we define :
+\begin{center}
+  $\mathbb{P}(Positive | c_{i}) = \frac{1}{1+e^{-(\theta_{0}+c_{i}\theta_{1})}}$
+\end{center}  
+the pobability of a cell to be positive given its intensity value. $\theta_{0}$ and $\theta_{1}$ are 
+learned from the data. The dynamic range between the positive and
+the negaticve is addressed by predictive accuracy of the model using a 10-fold cross-validation. 
+Depending on the quality of tha ssay data, we expect that the predictive accuracy to be at least 70\%.
+In other words, 30\% of training data are misclassified.
+ 
+\paragraph{}
+For a specific gene, every cell has now a probabiluity value to belong to the positive control. These
+values can be modeled by a beta distribution whose parameters $\alpha$ and $\beta$ can be estimated by the cell data taken
+from that gene condition. To be able to compare the genes to the negative control, we assign to every
+gene $g_{i}$ the average of its cell values:   
+\begin{center}
+$\bar{g}_{i} = \frac{1}{n}\sum_{j=1}^{n}p_{ij}$
+\end{center}
+where the $p_{ij}$ with $j=1 .. n$ are the cell probabilities for that gene. Gene selection is done using
+the relative risk associated with every gene $g_{i}$. It defines as :
+\begin{center}
+$r_{i} = \frac{\bar{g}_{i}}{\bar{g}_{c}} $
+\end{center}
+More specifically, we use the log value of $r_{i}$. As $r_{i}$, $\bar{g}_{i}$ and $\bar{g}_{c}$ are estimators, 
+using the delta method, we have:
+\begin{center}
+$\mathbb{E}(log(\bar{g}_{i})) = log(\frac{\alpha_{i}}{\alpha_{i}+\beta_{i}})$ and $\mathbb{V}ar(log(\bar{g}_{i}))=\frac{\alpha_{i}\beta_{i}}
+{n_{i}(\alpha_{i}+\beta_{i})^{2}(\alpha_{i}+beta_{i}+1)} $
+\end{center}
+and 
+\begin{center}
+$\mathbb{E}(log(\bar{g}_{c})) = log(\frac{\alpha_{c}}{\alpha_{c}+\beta_{c}})$ and $\mathbb{V}ar(log(\bar{g}_{c}))=\frac{\alpha_{c}\beta_{c}}
+{n_{c}(\alpha_{c}+\beta_{c})^{2}(\alpha_{c}+beta_{c}+1)} $
+\end{center}
+Under the null hypothesis that there is no difference between the gene $i$ and the negative control, we have :
+\begin{center}
+$\mathbb{E}(log(\bar{g}_{i})-log(\bar{g}_{c})) = 0$
+\end{center} 
+Therefore, given the number of cells per gene is sufficiently large, p-values can be calculated using the value :
+\begin{center}
+ $Zscore = \frac{log(\bar{g}_{i})-log(\bar{g}_{c})}{\sqrt{\mathbb{V}ar(log(\bar{g}_{i}))+\mathbb{V}ar(log(\bar{g}_{c}))}}$
+\end{center} 
+Two p-values are reported depending the user interest:
+\begin{center}
+$p-value_{+} = 1 - F_{Z}(Zscore)$ and $p-value_{-} = F_{Z}(Zscore)$
+\end{center}
+The p-values are ajusted to FDR values.
+
+\paragraph{}
+ A viability value is calulated using
+ the available positive toxicity control and a negative toxicity control cell counts distributions. The viability value
+ is calculated using a Z-factor like measure:
+ \[\varphi(c)=\frac{(c-\mu_p-3\sigma_p)}{|\mu_n-\mu_p|}\]
+ $c$ is the number of cells in the well of interest, $\mu_p$ is the average cells number in the positive toxicity
+ control, $\mu_n$ is the average cells number in the negative control, $\sigma_p$ is the standard deviation of the
+ cells number distribution in the postive control and $\sigma_n$ is the standard deviation of the cells number
+ distribution in the negative control. These parameters are calculated using normal approximation of the cell counts
+ distribution. The Z-factor as quality metric can be used as a threshold for non-toxic gene selection.
+ \[Z-factor=1-\frac{3\sigma_p+3\sigma_n}{|\mu_p-\mu_n|}\]
+ Basically, the Z-factor is used to quantify the quality of an experiment. High value of Z-factor corresponds to
+ an experiment where the positive and the negative controls are well separated, otherwise the Z-factor value is low.
+ It results that the genes with a viability value greater than the Z-factor may be considered as non toxic, meaning that
+ their number of cells is similar to the negative toxicity control condition. Based on proximity of cell counts,
+ to negative and positive toxicity controls, genes with negative values of viability are considered as toxic and therefore
+ are labelled as toxic.
+
+
+
+
+\end{document}

@@ -1,0 +1,442 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{color,pdfcolmk}
+\usepackage{amssymb,amsmath}
+\usepackage{afterpage}
+\setlength{\hoffset}{-18pt}        
+\setlength{\oddsidemargin}{0pt} % Marge gauche sur pages impaires
+\setlength{\evensidemargin}{9pt} % Marge gauche sur pages paires
+\setlength{\marginparwidth}{54pt} % Largeur de note dans la marge
+\setlength{\textwidth}{481pt} % Largeur de la zone de texte (17cm)
+\setlength{\voffset}{-18pt} % Bon pour DOS
+\setlength{\marginparsep}{7pt} % Séparation de la marge
+\setlength{\topmargin}{0pt} % Pas de marge en haut
+\setlength{\headheight}{13pt} % Haut de page
+\setlength{\headsep}{10pt} % Entre le haut de page et le texte
+\setlength{\footskip}{27pt} % Bas de page + séparation
+\setlength{\textheight}{708pt} % Hauteur de la zone de texte (25cm)
+\renewcommand{\arraystretch}{3}
+
+\author{KOPP Arnaud @ IGBMC}
+
+\title {TCA Plate Analysis using CellTCA package MAIN.R script}
+
+\begin{document}
+\maketitle
+
+
+\section*{Presentation}
+This R programs reads TCA-data out from csv file, and was created for basics statistics and overview of TCA experiences results.
+
+
+\section*{Prerequisite}
+
+
+The programs need this parameters :
+\begin{itemize}
+  \item Data Input Directory (csv file in good format)
+  \item Output Directory for results file
+  \item The columns to analyze (can be multiple but with restriction in output)
+  \item Negative reference
+  \item Positive reference
+  \item Toxicity reference
+  \item Cutoff (add one for avoid bug )
+  \item Median (add option if mean of replicat is wanted )
+  \item SVM (add option if SVM is wanted )
+  \item Number of thread for multicore
+\end{itemize}
+
+\vspace{1cm}
+
+R PACKAGE DEPENDENCY :
+\begin{itemize}
+  \item limma (BioConductor)
+  \item prada (BioConductor)
+  \item bioDist (BioConductor)
+  \item e1071
+  \item DAAG
+  \item ggplot2 (graphics)
+  \item reshape2 (graphics)
+<<<<<<< HEAD
+<<<<<<< HEAD:DOC/RRG.tex
+  \item fields
+=======
+  \item foreach
+  \item doMC
+  \item data.table
+=======
+  \item foreach (performance)
+  \item doMC (performance)
+  \item data.table (performance)
+>>>>>>> dev
+  \item optparse
+  \item methods
+>>>>>>> dev:DOC/MAIN.tex
+\end{itemize}
+
+\newpage
+
+\section*{Warnings Know Bug}
+Column name in csv file must be without space
+
+If only one replicat is given, some stat are not given
+
+SVM don't work yet.
+
+Bscore computation is buggy when a gene/controls is on a full line or row.
+
+\newpage
+
+
+\section*{Operation performed}
+
+\subsection*{Quality control}
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+Check if gene is found in all plate, if not, it will be removed. 
+Check if negative and positive control have non identical distribution.
+=======
+=======
+
+>>>>>>> dev
+=======
+
+
+>>>>>>> dev
+Check if gene is found in all plate. If only one plate is provided, no normalization of plate, but analyzis is performed anyway.
+We check quality of assay by determined some metric.
+If multi column for analyzis is provided, QC metric are only performed one first entry.
+
+
+In high-throughput screens, quality control (QC) is critical. An important QC characteristic in an HTS assay is how much the positive 
+controls, test compounds, and negative controls differ from one another in the assay. This QC characteristic can be evaluated using the 
+comparison of two well types in HTS assays.
+\vspace{1cm}
+
+\begin{tabular}{|l|l|}
+\hline
+
+Quality metric     & Formula \\
+\hline
+Signal to noise S/N & $ \frac{mean(C_{pos} - mean(C_{neg}))}{std(C_{neg})}$ \\
+Z'-factor& $1-\frac{3*std(C_{pos})+3*std(C_{neg}))}{|std(C_{pos})-std(C_{neg})|}$\\
+Z-factor & $1-\frac{3*std(C_{pos})+3*std(S_{all}))}{|std(C_{pos})-std(S_{all})|}$ \\
+SSMD & $ \frac{median(C_{pos})-median(C_{neg})}{1.4826*\sqrt{mad(C_{pos})^2-mad(C_{neg})^2}}$ \\
+
+\hline
+\end{tabular}
+
+\bigskip
+>>>>>>> dev
+
+\subsubsection*{S/N}
+
+
+Signal-to-noise (S/N) is a simple measure of the ratio of the positive control mean to the background mean with inclusion oif signal
+varaibility in the formulation. He is considered as week parameters to represent dynamic signal range and are rarely used.
+
+\subsubsection*{Z'-Factor}
+
+
+Z'-factor is a measure of statistical effect size. The Z-factor is an attempt to quantify the suitability of a particular assay for
+ use in a full-scale, high-throughput screen.
+
+\subsubsection*{Z-factor}
+
+
+Z-factor is modified version of the Z'-factor, where the mean and std of the negative control are substituted with all. Z-factor is
+more advantageous than Z'-factor due to its ability to incroporate sample variability in the calculations.
+
+\subsubsection*{SSMD}
+
+
+Strictly Standardized Mean Difference (SSMD) is a measure of effect size.
+It is an alternative QC metric to Z' Z factor. SSMD is able to handle controls with different effect. SSMD method is capable
+of determining "hits" with higher assurance compared to the Z-score and t-test methods.
+
+\newpage
+
+\subsection*{Normalization inter-replicat}
+
+
+If only one replicate, no inter replicat plate normalization is available. Check if in case a gene is found in one plate and not 
+in another one, we remove it to prevent from performed normalization with false data.
+A quantile normalization is performed, ( "scale", "quantile", "Aquantile", "Gquantile", "Rquantile" or "Tquantile" 
+or "cyclicloess") are available. function = normalizeBetweenArrays from limma package
+
+
+In statistics, quantile normalization is a technique for making two (or more ) distributions identical in statistical properties. 
+To quantile-normalize a test distribution to a reference distribution of the same length, sort the test distribution and sort the 
+reference distribution. The highest entry in the test distribution then takes the value of the highest entry in the reference 
+distribution, the next highest entry in the reference distribution, and so on, until the test distribution is a perturbation of the 
+reference distribution. (cf Wikipedia ) Quantile normalization is frequently used in microarray data analysis.
+
+
+We have the possibilitie to performed B-score normalization and to have SSMDr with data.
+
+\subsubsection*{"Pooling"}
+
+
+The data is organized on a column based each line will consist of gene id and column values As each each column
+represents the same distribution, we only need one of them. Preferably, one without na or with less na entries.
+
+\paragraph{Option}
+
+We can pool the data by use median, but in fact we don't have the same population in each well of each replicat, so
+we have distorted data.
+
+
+\subsection*{Log2 Transformation}
+
+
+Log2 Transformation is performed on data, this transformation makes normalized data additive and renders variation more independent of absolute magnitude.
+
+log transformation are often applied to the data int the pre-processing stage to achieve more symmetrically distributed data around the mean 
+as a normal distribution, to represent the relationship between variables in a more linera way especially for cell growth assays, and to make
+an efficeient use of the assy quality assesment parameters.
+SSMD, Z-score, control normalization, B-score and median are performed with this data (in there robust version (median instead mean)).
+
+\subsection*{SVM Classification}
+
+
+We can exclude a potentially "bad" replicate by use SVM classification. This technique performed the similarity or the pseudo distance
+between two distribution (replicate), it use discrete form of the Kullback-Leibler Divergence (KLD) of bioDist package.
+If one of the replicate has dissimular distribution, it will be considered as a outlier and removed from the sample.
+
+CF : CellTCA publication.
+
+
+\subsection*{P-Values}
+\paragraph*{}
+
+
+A Mann-Whitney test is performed. Mann-Whitney U test is the alternative test to the independent sample t-test.  It is a non-
+parametric test that is used to compare two population means that come from the same population, it is also used to test whether 
+two population means are equal or not.  It is used for equal sample sizes, and is used to test the median of two populations. 
+Usually the Mann-Whitney U test is used when the data is ordinal. Wilcoxon rank sum, Kendall’s and Mann-Whitney U test are 
+similar tests and in the case of ties, it is equivalent to the chi-square test.
+Mann-Whitney test to check that positive control distribution is significantly greater than negative control distribution
+The null hypothesis is that neg and pos are identical, if pvalue \textless 0.05 then null hypo are reject (neg and pos are nonindentical).
+A Mann-Witney test is performed to check how different positive and negative 
+controls are. We expect to see a shift to the right when compare positive and negative 
+controls distribution. The p-Value should be at most 0.01 depending on the sample size.
+
+
+\begin{center}
+$U=n_{1}n_{2}+\frac{n_{2}+1}{2}-\sum_{i=n_{2}+1}^{n_{2}}$
+\end{center}
+Where:
+U=Mann-Whitney U test
+N1 = sample size one
+N2= Sample size two
+Ri = Rank of the sample size
+
+
+\subsection*{Cutoff}
+
+
+If no threshold has been provided, it will automatically be estimated/calculate with neg and pos references, else 
+we give them in \% of Cell in negative control:  98 \% mean that cell is considered as positive if there value is greater than the 98 \% of cell
+in negative control. 
+
+
+\subsection*{Infection/Toxicity}
+\paragraph*{}
+
+
+This part consists of plots of data all over the screen. The first plot is
+about the negative control or infected control to make sure that the distribution
+of the values is not random, but has a mode at a specific reference value. Next, will
+come two other plots : infection index cutoff and toxicity index.
+We need to estimate two cutoffs : infection and toxicity cutoffs. 
+To identify the infection cutoff, we make the assumption that most 
+the genes will not affect the infection level. Therefore, we expect 
+their infection indices to be close to the negative control effect.
+Thus, in the neiborhood of 1.0, the distribution of the infection indices 
+should be close to normal and deviates to some other distribution as 
+values are getting away from 1.0. The cutoffs are set to the transition 
+values, when the distribution deviates from normal. A similar reasonning 
+is used to calculate the toxicity cutoff index.
+
+
+The table will also contain a viability value calulated using
+the available positive toxicity control and a negative toxicity control cell counts distributions. The viability value
+is calculated using a Z-factor like measure: 
+\[\varphi(c)=\frac{(c-\mu_p-3\sigma_p)}{|\mu_n-\mu_p|}\]
+$c$ is the number of cells in the well of interest, $\mu_p$ is the average cells number in the positive toxicity
+control, $\mu_n$ is the average cells number in the negative control, $\sigma_p$ is the standard deviation of the
+cells number distribution in the postive control and $\sigma_n$ is the standard deviation of the cells number 
+distribution in the negative control. These parameters are calculated using normal approximation of the cell counts 
+distribution
+
+\newpage
+
+\section*{Hit identification}
+
+
+Various metric for hit selection are provided. 
+The exact cutoff of estimated SSMD is experiment specific. However, in general, a cutoff between 1 and 1.654 (or between -1 and -1.654)
+can reach reasonably small false discovery and false non discovery rates in a screen with three or four replicates per siRNA.
+
+\vspace{1cm}
+\begin{tabular}{|l|l|l|}
+\hline
+     & Regular Version                             & Robust Version \\
+\hline
+Percent Value (vtmp) &  \% de cellules au dessus du seuil negatif & \\
+semPercentValue & $\frac{\sqrt{VTMP*(1-VTMP)}}{nb genes}$  & \\
+totalToxicityIdx & $\frac{Max nb Cell - nb Cell_{ij}}{Max nb Cell- Min nb Cell}$& \\
+totalInfectionIdx & $\frac{\% Cellules positive}{\% Cellules positives dans le controle pos}$ & \\
+totalPvalues & Chisq P value & \\
+Median Absolute Deviation (MAD) & MAD = 1.4826 * median($\mid y_i - median(y)\mid$) & \\
+Z-Score  &  $\frac{Y_i-\bar{Y_N}}{SD_N}$        & $\frac{Y_i-\tilde{Y_N}}{MAD_N}$ \\
+SSMD     & $\frac{Y_i-\bar{Y_N}}{\sqrt{2}*SD_N}$   & $\frac{Y_i-\tilde{Y_N}}{\sqrt{2}*MAD_N}$ \\
+Control normalization & $\tilde{x_{ij}}=\frac{x_{ij} - \mu_{neg}}{\mu_{pos} - \mu_{neg}}$ & $\tilde{x_{ij}}=\frac{x_{ij} - \mu_{neg}}{\mu_{pos} - \mu_{neg}}$ \\
+Fold Change (difference) & $Y_i-\bar{Y_N}$ & $Y_i-\tilde{Y_N}$ \\
+\hline
+\end{tabular}
+
+\bigskip
+
+\subsection*{B-score normalization (Normalization for systematic errors)}
+
+B-score is a normalization which involves the residual values calculated from median polish and the sample MAD to account for 
+data variability. Median polish is utilized to calculate the row and column effect within plates using a non-controls-based approach.
+In this method, the row and column medians are iteratively substracted from all wells until the maximum tolerance value is reached for the row
+and column medians as wells as for the row and column effect. Since median parameter is used in the calculations, this method is relatively
+insensitive to outliers.
+B-score normalization is performed on data and SSMDr is performed on this.
+\begin{center}
+B-score = $\frac{r_{ijp}}{( 1.4826 * MAD_{p})}$
+\end{center}
+
+where 
+
+\begin{center}
+$r_{ijp} =  x_{ijp} -\hat{x}_{ijp} = x_{ijp} - ( \tilde{\mu} + \hat{R}_{ip} + \hat{C}_{jp})$
+\end{center}
+
+and 
+
+\begin{center}
+$MAD_{p}=median(|r_{ijp} - median(r_{ijp})|)$
+\end{center}
+
+The b-score normlization with SSMDr hit score are save in csv file, plot in plate format are created.
+
+\subsection*{What to use ? }
+
+
+SSMDr (with minimum edge effect) and B-score/SSMDr are the must used score for hit selection, but keep in mind that are only indicator !!
+
+\renewcommand{\arraystretch}{1}
+
+\vspace{1cm}
+\begin{tabular}{|l|l|l|}
+\hline
+ Type    & RNAi Effect Classes                             & RNAi Effect Cutoff \\
+\hline
+Upregulated &  $\geq$ 5 & Extremely strong\\
+Upregulated & 5 $>$ SSMD $\geq$ 3 & Very strong\\
+Upregulated & 3 $>$ SSMD $\geq$ 2 & Strong\\
+Upregulated & 2 $>$ SSMD $\geq$ 1.645 & Fairly strong\\
+Upregulated & 1.645 $>$ SSMD $\geq$ 1.28 & Moderate\\
+Upregulated & 1.28 $>$ SSMD $\geq$ 1 & Fairly moderate\\
+Upregulated & 1 $>$ SSMD $\geq$ 0.75 & Fairly weak\\
+Upregulated & 0.75 $>$ SSMD $\geq$ 0.5 & Weak\\
+Upregulated & 0.5 $>$ SSMD $\geq$ 0.25 & Very weak\\
+Upregulated & 0.25 $>$ SSMD $\geq$ 0 & Extremely weak\\
+zero & $=$0 & no effect \\
+Downregulated & -0 $>$ SSMD $\geq$ -0.25 & Extremely weak\\
+Downregulated & -0.25 $>$ SSMD $\geq$ -0.5 & Very weak\\
+Downregulated & -0.5 $>$ SSMD $\geq$ -0.75 & Weak\\
+Downregulated & -0.75 $>$ SSMD $\geq$ -1 & Fairly weak\\
+Downregulated & -1 $>$ SSMD $\geq$ -1.28 & Fairly moderate\\
+Downregulated & -1.28 $>$ SSMD $\geq$ -1.645 & Moderate\\
+Downregulated & -1.645 $>$ SSMD $\geq$ -2 & Fairly strong\\
+Downregulated & -2 $>$ SSMD $\geq$ -3 & Strong\\
+Downregulated & -3 $>$ SSMD $\geq$ -5 & Very strong\\
+Downregulated &  $>$ -5 & Extremely strong\\
+\hline
+\end{tabular}
+
+
+\section*{Organization of the results}
+
+
+The results are organized according to the various of TCA plates submitted. Each plate may have
+several replicates. In case of more than one replicate, a quantile-quantile inter-plate normalization
+is performed. The wells assigned to the same genes are merged together to generate the summaries.    
+
+Each user-defined analysis column of measures from the input-data gives rise to six plots : a plot showing
+positive and negative controls and estimated cutoff for positive cells identification, a barplot 
+for the percentage of the intensity values greater than an estimated cutoff over each well, a barplot 
+representing infection index values (percentage of positive cells in a well divided by the percentage
+of positive cells in the control), a barplot for toxicity index values (normalized number scaled on 
+toxicity control that can be used as toxicity level), a plot for the spatial distribution of intensity 
+values over the wells, and a plot for the spatial distribution of CV intensity values over the wells.
+
+
+\subsubsection*{Plots}
+
+
+The results are shown as plots for number of indicators.
+
+\newpage
+
+\section*{CELLTCA stat}
+After plate-wise quantile-quantile normalization, gene are selected according to how they differ from
+the negative condition. We name positive cells, cells that are more likely to be found in the positive 
+control condition and negative cells, the ones that are similar the cells in the negative control
+condition. Genes are selected based on the their difference to the negative control in terms of
+number of positive cells. To quantify the likelyhood of a cell to be positive or negative, we 
+used a supervised learning approach. More specifically, we apply a logistic regression using 
+the data from the positive and the negative controls. For every cell $c_{i}$, we define :
+\begin{center}
+  $\mathbb{P}(Positive | c_{i}) = \frac{1}{1+e^{-(\theta_{0}+c_{i}\theta_{1})}}$
+\end{center}  
+the pobability of a cell to be positive given its intensity value. $\theta_{0}$ and $\theta_{1}$ are 
+learned from the data. The dynamic range between the positive and
+the negaticve is addressed by predictive accuracy of the model using a 10-fold cross-validation. 
+Depending on the quality of tha ssay data, we expect that the predictive accuracy to be at least 70\%.
+In other words, 30\% of training data are misclassified.
+ 
+\paragraph{}
+For a specific gene, every cell has now a probabiluity value to belong to the positive control. These
+values can be modeled by a beta distribution whose parameters $\alpha$ and $\beta$ can be estimated by the cell data taken
+from that gene condition. To be able to compare the genes to the negative control, we assign to every
+gene $g_{i}$ the average of its cell values:   
+\begin{center}
+$\bar{g}_{i} = \frac{1}{n}\sum_{j=1}^{n}p_{ij}$
+\end{center}
+where the $p_{ij}$ with $j=1 .. n$ are the cell probabilities for that gene. Gene selection is done using
+the relative risk associated with every gene $g_{i}$. It defines as :
+\begin{center}
+$r_{i} = \frac{\bar{g}_{i}}{\bar{g}_{c}} $
+\end{center}
+More specifically, we use the log value of $r_{i}$. As $r_{i}$, $\bar{g}_{i}$ and $\bar{g}_{c}$ are estimators, 
+using the delta method, we have:
+\begin{center}
+$\mathbb{E}(log(\bar{g}_{i})) = log(\frac{\alpha_{i}}{\alpha_{i}+\beta_{i}})$ and $\mathbb{V}ar(log(\bar{g}_{i}))=\frac{\alpha_{i}\beta_{i}}
+{n_{i}(\alpha_{i}+\beta_{i})^{2}(\alpha_{i}+beta_{i}+1)} $
+\end{center}
+and 
+\begin{center}
+$\mathbb{E}(log(\bar{g}_{c})) = log(\frac{\alpha_{c}}{\alpha_{c}+\beta_{c}})$ and $\mathbb{V}ar(log(\bar{g}_{c}))=\frac{\alpha_{c}\beta_{c}}
+{n_{c}(\alpha_{c}+\beta_{c})^{2}(\alpha_{c}+beta_{c}+1)} $
+\end{center}
+Under the null hypothesis that there is no difference between the gene $i$ and the negative control, we have :
+\begin{center}
+$\mathbb{E}(log(\bar{g}_{i})-log(\bar{g}_{c})) = 0$
+\end{center} 
+Therefore, given the number of cells per gene is sufficiently large, p-values can be calculated using the value :
+\begin{center}
+ $Zscore = \frac{log(\bar{g}_{i})-log(\bar{g}_{c})}{\sqrt{\mathbb{V}ar(log(\bar{g}_{i}))+\mathbb{V}ar(log(\bar{g}_{c}))}}$
+\end{center} 
+Two p-values are reported depending the user interest:
+\begin{center}
+$p-value_{+} = 1 - F_{Z}(Zscore)$ and $p-value_{-} = F_{Z}(Zscore)$
+\end{center}
+The p-values are ajusted to FDR values.
+
+\end{document}

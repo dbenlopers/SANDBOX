@@ -1,0 +1,34 @@
+## Signification des colonnes importantes
+
+-PercentValue : % de Cellules au dessus du seuil du contrôle négatifs
+
+-bscore.norm.percentvalue : % de Cellules au dessus du seuil du contrôle négatifs avec normalisation B-score puis SSMDr
+
+-semPercentValue : Erreur Type de PercentValue
+
+-meanCounts : Nombre de cellules dans le puits
+
+-bscore.norm.meancount : Nombre de cellules dans le puits avec normalisation B-score puis SSMDr
+
+-sdCounts : Déviation standart du nombre de cellules dans les réplicats
+
+-totalInfectionIdx : % de C positives / % de C positives dans le contrôle positif
+
+-bscore.norm.totalinfection : pareil que précédent sauf avec normalisation B-score puis SSMDr
+
+-totalToxicityIdx : Maximum de Cellules/puits dans la plaque - nb de C du puits / Max de C de la plaque - Min de C de la plaque
+    puits avec 0 correspond à un puits où il y a le maximum de cellules dans la plaque
+    puits avec 1 correspond à un puits où il y a le minimum de cellules dans la plaque
+
+-bscore.norm.totaltoxicity : pareil que précédent sauf avec normalisation B-score puis SSMDr
+
+-MAD : Median Absolute Deviation des valeurs du puits
+    Correspond à une déviation standart mais en étant moins sensible au valeurs extrême (plus robuste)
+   
+-mean : moyenne des valeurs du puits 
+
+-ssmd/ssmdr : SSMD ( et version robuste ) du puits/gene sans normalisation des effets de bords
+ 
+-bscore.norm.ssmdr : Strictly Standardized Mean Deviation avec un normalisation des effets de bords de la plaque (B-score)
+
+-bscorelog.norm.ssmdr : Pareil que précédent sauf avec un traitement logarithmique des données
