@@ -1,5 +1,5 @@
-CsvDir = '/home/arnaud/Desktop/Schneider/Plaque du 02072015/'
-filelist <- dir(pattern = "ratio_cleaned.csv", path = CsvDir, ignore.case = TRUE)
+CsvDir = '/home/arnaud/Desktop/Anne/valerieschreiber/'
+filelist <- dir(pattern = ".csv", path = CsvDir, ignore.case = TRUE)
 
 for (file in filelist) {
   file.path <- paste(CsvDir,file, sep = "/")
@@ -20,13 +20,13 @@ for (file in filelist) {
 #   print(file.path)
 #   write.csv(x = res, file = file.path)
   
-  res <- t(sapply(by(df$ratio_taget_I, list(df$Well), cut, breaks = seq(0,3, by = 0.1)), table))
-  file.path <- paste(CsvDir,paste('ratio_target_I_Repartition', file, sep = '_'), sep = "/")
+  res <- t(sapply(by(df$CellNucCountCh1, list(df$Well), cut, breaks = c(0,1,2,100)), table))
+  file.path <- paste(CsvDir,paste('CellNucCountCh1_Repartition', file, sep = '_'), sep = "/")
   print(file.path)
   write.csv(x = res, file = file.path)
   
-  res <- t(sapply(by(df$ratio_taget_II, list(df$Well), cut, breaks = seq(0,3, by = 0.1)), table))
-  file.path <- paste(CsvDir,paste('ratio_target_II_Repartition', file, sep = '_'), sep = "/")
+  res <- t(sapply(by(df$CellMicroNucCountCh1, list(df$Well), cut, breaks = c(-1,0,1,2,100)), table))
+  file.path <- paste(CsvDir,paste('CellMicroNucCountCh1_Repartition', file, sep = '_'), sep = "/")
   print(file.path)
   write.csv(x = res, file = file.path)
   
