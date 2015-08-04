@@ -1,10 +1,6 @@
-#include <iostream>
-//#include <stdlib.h>
-//#include <stdio.h>
+#include <iostream>s
 #include <vector>
-//#include <algorithm>
 #include <numeric>
-//#include <iterator>
 #include <cmath>
 
 using namespace std;
