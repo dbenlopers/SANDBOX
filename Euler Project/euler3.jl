@@ -10,20 +10,30 @@ function is_prime(number)
 	return true
 end
 
-factor = 2
-largest_factor = factor
-while factor <= N
-	if N % factor == 0 && is_prime(factor)
-		# println(factor)
-		if factor > largest_factor
-			largest_factor = factor
-		end
+function largest_factor(N)
+	factor = 2
+	L_factor = factor
+	while factor <= N
+		if N % factor == 0 && is_prime(factor)
+			# println(factor)
+			if factor > L_factor
+				L_factor = factor
+			end
 
-		N = div(N, factor)
-		factor = 2
-	else
-		factor += 1
+			N = div(N, factor)
+			factor = 2
+		else
+			factor += 1
+		end
 	end
+	return L_factor
 end
 
-println(largest_factor)
+lar_factor = 0
+iteration = 10000
+i = 1
+while i <= iteration
+	lar_factor = largest_factor(N)
+	i += 1
+end
+println(lar_factor)
