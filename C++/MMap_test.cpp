@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <csv_parser.h>
 #include <boost/iostreams/device/mapped_file.hpp>
 
 /*
@@ -20,7 +21,7 @@ void tokenize(const std::string& str, ContainerT& tokens, const std::string& del
 		if(pos == std::string::npos)
 		{
 			pos = str.length();
-			
+
 			if(pos != lastPos || !trimEmpty)
 				tokens.push_back(value_type(str.data()+lastPos, (size_type)pos-lastPos));
 			break;
@@ -37,7 +38,7 @@ void tokenize(const std::string& str, ContainerT& tokens, const std::string& del
 /*
 Read line by line a csv file
 */
-int reader(const std::string& filepath) 
+int reader(const std::string& filepath)
 {
 	int i {0};
 	std::string line;
@@ -67,9 +68,9 @@ void memory_mapped_file(const char * filename)
 {
 	// Create a file mapping
 	boost::iostreams::mapped_file m_file(filename, boost::iostreams::mapped_file::readonly);
-	auto f = m_file.const_data();    //return a pointer to the first byte of data 
+	auto f = m_file.const_data();    //return a pointer to the first byte of data
 	auto l = f + m_file.size();
-	
+
 	//std::cout << "File data : " << f << '\n';
 	std::cout << "File size : " << m_file.size() << '\n';
 
@@ -84,9 +85,30 @@ void memory_mapped_file(const char * filename)
 	std::cout << "Number of lines = " << m_numLines << '\n';
 }
 
-int main() 
+int main()
 {
 	std::string fileName ("/home/arnaud/Desktop/SUBSET 1.1.csv");
 	//reader(fileName);
 	memory_mapped_file(fileName.c_str());
+	// io::CSVReader<2> in("/home/arnaud/Desktop/HDV/DATA/target_8.3.csv");
+    // in.read_header(io::ignore_extra_column, "Well", "AvgIntenCh2");
+    // std::string Well = "";
+    // int AvgIntenCh2 = 0;
+    // while(in.read_row(Well, AvgIntenCh2)){
+    //     std::cout << Well << " " << AvgIntenCh2  << std::endl;
+    // }
+
+    // io::LineReader in("/home/arnaud/Downloads/HumanB_lentiGuidePuro.fq");
+    // while(char*line = in.next_line()){
+    //     std::string str_line = line;
+    //     std::cout << line << std::endl;
+        // char * token;
+        // auto delim = "\t; ";
+        // token = strtok(line, delim);
+        // while (token != NULL) {
+        //     std::cout << token << "\t";
+        //     token = std::strtok(NULL, delim);
+        // }
+        // std::cout << std::endl;
+    // }
 }
