@@ -3,6 +3,8 @@
 #include <string>
 #include <string.h>
 #include <unordered_map>
+#include "tokenize.h"
+#include <vector>
 
 void readFastqGetCount(const char*file_name, std::unordered_map<std::string,int> &ctab){
     int nline = 0;
@@ -27,24 +29,31 @@ void readLib(const char*file_name, const std::unordered_map<std::string,int> &ct
     io::LineReader in(file_name);
     while(char*line = in.next_line()){
         // std::cout << line << std::endl;
-        int cnt = 0;
-        auto delim = ",;";
-        char * token;
-        token = std::strtok(line, delim);
-        std::string sgrnaseq ;
-        std::string geneid ;
-        while (token != NULL) {
-            cnt += 1;
-            // std::cout << cnt<< " " << token << "\t" << std::endl;
-            if (cnt == 1){
-                geneid = token;
-            }
-            if (cnt == 3){
-                sgrnaseq = token;
-            }
-            token = std::strtok(NULL, delim);
-        }
-        cnt = 0;
+
+        std::vector<std::string> vec;
+        tokenize(line, ",", vec);
+
+        // int cnt = 0;
+        // auto delim = ",;";
+        // char * token;
+        // token = std::strtok(line, delim);
+        // std::string sgrnaseq ;
+        // std::string geneid ;
+        // while (token != NULL) {
+        //     cnt += 1;
+        //     // std::cout << cnt<< " " << token << "\t" << std::endl;
+        //     if (cnt == 1){
+        //         geneid = token;
+        //     }
+        //     if (cnt == 3){
+        //         sgrnaseq = token;
+        //     }
+        //     token = std::strtok(NULL, delim);
+        // }
+        // cnt = 0;
+
+        auto sgrnaseq = vec[2];
+        auto geneid = vec[0];
 
         auto search = ctab.find(sgrnaseq);
         if(search != ctab.end()) {
@@ -55,7 +64,7 @@ void readLib(const char*file_name, const std::unordered_map<std::string,int> &ct
 
 int main(){
     std::unordered_map<std::string,int> ctab;
-    readFastqGetCount("/home/arnaud/Downloads/HumanB_lentiGuidePuro.fq", ctab);
+    readFastqGetCount("/home/arnaud/Downloads/HumanA_lentiCRISPRv2.fq", ctab);
     // for (auto &itr : ctab){
     //         std::cout << itr.first << " : " << itr.second << std::endl;
     // }
