@@ -9,6 +9,20 @@
 /*
 Read a Fastq file and populate unordered_map with count of each different seq found in fastq file
 
+ -> @ wikipedia
+@EAS139:136:FC706VJ:2:2104:15343:197393 1:Y:18:ATCACG
+EAS139 	the unique instrument name
+136 	the run id
+FC706VJ 	the flowcell id
+2 	flowcell lane
+2104 	tile number within the flowcell lane
+15343 	'x'-coordinate of the cluster within the tile
+197393 	'y'-coordinate of the cluster within the tile
+1 	the member of a pair, 1 or 2 (paired-end or mate-pair reads only)
+Y 	Y if the read is filtered, N otherwise
+18 	0 when none of the control bits are on, otherwise it is an even number
+ATCACG 	index sequence
+
 @M01855:124:000000000-A7W1V:1:1101:18707:1016 1:N:0:0
 CCTGACTGGCTTATCTGAAC
 +
@@ -32,7 +46,20 @@ void ReadFastqFile(const char*file_name, std::unordered_map<std::string,int> &ct
     while(char*line = in.next_line()){
         nline += 1;
 
-        // Read are every 4 line and second line of Read entry
+        // Get the id of read
+        // if (nline%4 == 1){
+        //     std::string readId = line;
+        //
+        //     std::vector<std::string> vec;
+        //     tokenize(line, ": ", vec);
+        //
+        //     // for (auto i : vec)
+        //     //     std::cout << i << " ";
+        //     // std::cout << std::endl;
+        //
+        // }
+
+        // Get the sequence of read
         if (nline%4 == 2){
             nreadcount += 1;
             std::string str_line = line;
