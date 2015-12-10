@@ -31,11 +31,11 @@ def mageckcount_processonefile(filename):
     print(SizeTable)
     return ctab
 
-filename = "/home/arnaud/Downloads/HumanA_lentiCRISPRv2.fq"
+filename = "/home/akopp/Documents/Crispr_Test/GeCKO_NatureMethods2014_fastq/HumanA_lentiCRISPRv2.fq"
 
 countTable = mageckcount_processonefile(filename=filename)
 
-sgRNA_File = "/home/arnaud/Downloads/human_geckov2_library_a_2.csv"
+sgRNA_File = "/home/akopp/Documents/Crispr_Test/Human_GeCKOv2_Library_A_09Mar2015.csv"
 
 geneCnt = 0
 MatchCnt = 0
