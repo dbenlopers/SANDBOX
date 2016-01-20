@@ -65,14 +65,15 @@ function merge(a::AbstractVector, left, right, final, b::AbstractVector)
     end
 end
 
-####################### TEST
-
 # copy array b into array a
 function copyarray(b::AbstractVector, a::AbstractVector, n)
     @inbounds for i = 1:n
         a[i] = b[i]
     end
 end
+
+####################### TEST
+
 
 println("Swap inside array")
 @time SwapArray!([6, 10, 4, 5, 1, 2], 4, 5)

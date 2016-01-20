@@ -156,3 +156,17 @@ close(f)
 
 mass = ProteinMass(seq, x)
 @printf "%0.8f\n" mass
+
+
+## Rosalind calculating expected offsprings
+
+function eo()
+    dominance = [1.0, 1.0,1.0,0.75,0.5,0]
+    arr = [17102, 18069, 19708, 17266, 16780, 18940]
+    exp = 0
+    for i = 1:6
+        exp += 2*arr[i]*dominance[i]
+    end
+    return exp
+end
+println(eo())

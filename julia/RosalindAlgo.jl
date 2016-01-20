@@ -49,6 +49,38 @@ function ItBinarySearch(arr::AbstractArray, value)
 end
 
 
+## Merge two sorted array
+function MergeSortedArray(A::AbstractArray, B::AbstractArray)
+    a = length(A)
+    b = length(B)
+    res = Array(Float64, (a+b))
+    i = 1
+    j = 1
+    k = 1
+    while i <= a && j <= b
+        if A[i] <= B[j]
+            res[k] = A[i]
+            i += 1
+        else
+            res[k] = B[j]
+            j += 1
+        end
+        k += 1
+    end
+    if i < a
+        for p = i:a
+            res[k] = A[p]
+            k += 1
+        end
+    else
+        for p = j:b
+            res[k] = B[p]
+            k += 1
+        end
+    end
+    return res
+end
+
 ####################### TEST
 
 println("Fibonacci")
@@ -58,23 +90,19 @@ println("Fibonacci")
 
 println("Recursive binary search")
 @time x = RecBinarySearch([6, 10, 12, 20, 65], 10, 1, 6)
-println(x)
 @time x = RecBinarySearch([6, 10, 12, 20, 65, 78, 79, 85, 90], 85, 1, 9)
-println(x)
 
 
 println("Iterative binary search")
 @time x = ItBinarySearch([6, 10, 12, 20, 65], 10)
-println(x)
 @time x = ItBinarySearch([6, 10, 12, 20, 65, 78, 79, 85, 90], 85)
-println(x)
 
-f = open("/home/akopp/Documents/RosalindInput/rosalind_bins.txt")
-x = readall(f)
-x = split(x, "\n")
-close(f)
-array = readdlm(IOBuffer(x[3]), Int)
-searching = readdlm(IOBuffer(x[4]), Int)
+# f = open("/home/akopp/Documents/RosalindInput/rosalind_bins.txt")
+# x = readall(f)
+# x = split(x, "\n")
+# close(f)
+# array = readdlm(IOBuffer(x[3]), Int)
+# searching = readdlm(IOBuffer(x[4]), Int)
 # for elem in searching
 #     x = ItBinarySearch(array, elem)
 #     print(x)
@@ -85,3 +113,15 @@ searching = readdlm(IOBuffer(x[4]), Int)
 println("Use of Binary search")
 @time ItBinarySearch(array, 3008)
 @time RecBinarySearch(array, 3008, 1, length(array))
+
+println("Merging two sorted arrays")
+@time MergeSortedArray([6, 10, 12, 54, 60], [5, 7, 15, 52])
+@time MergeSortedArray([6, 10, 12, 54, 60], [5, 7, 15, 52])
+
+f = open("/home/akopp/Documents/RosalindInput/rosalind_mer.txt")
+x = readall(f)
+x = split(x, "\n")
+close(f)
+A = readdlm(IOBuffer(x[2]), Int)
+B = readdlm(IOBuffer(x[4]), Int)
+@time x= MergeSortedArray(A, B)
