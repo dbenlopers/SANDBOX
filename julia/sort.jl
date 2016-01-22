@@ -86,7 +86,7 @@ A = randcycle(10000)
 @time InsertionSort(A)
 
 f = open("/home/akopp/Documents/RosalindInput/rosalind_ins.txt")
-x = readall(f)
+x = readstring(f)
 x = split(x, "\n")
 array = readdlm(IOBuffer(x[2]), Int)
 close(f)

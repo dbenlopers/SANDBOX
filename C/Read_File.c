@@ -3,10 +3,10 @@
 
 void file_read(){
     FILE * pFile;
-    char buffer[100];
+    char buffer[200];
     int res;
 
-    pFile = fopen("/home/arnaud/Desktop/TEMP/assoc.csv", "rb");
+    pFile = fopen("/home/akopp/Desktop/TEST.csv", "r");
     if (pFile == NULL) {
         fputs("File Error", stderr);
         exit(1);
@@ -14,8 +14,7 @@ void file_read(){
     while (!feof(pFile)) {
         res = fread(buffer, 1, (sizeof buffer)-1, pFile);
         buffer[res] = 0;
-        //printf("%s \n", buffer);
-        //printf("res : %d \n", res);
+        printf("%s", buffer);
     }
     fclose(pFile);
 }
