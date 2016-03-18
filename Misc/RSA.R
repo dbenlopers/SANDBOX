@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-options("width"=220)
+options("width"=250)
 # R Users:
 # --------
 #   Usage of RSA.R:
@@ -143,9 +143,9 @@ OPI<-function(Groups,Scores,opts,Data=NULL)
 }
 
 opts = list(LB=0,
-			UB=100,
+			UB=1,
 			outputFile=NA,
-			inputFile="/home/akopp/Documents/Crispr_DATA/CountTable/COUNT_TABLE_Norm_Mean_Fold.csv",
+			inputFile="/home/akopp/Documents/Crispr_DATA/CountTable/CountTable_Sum_Fold.csv",
 			reverse=FALSE,
 			bonferroni=TRUE)
 
@@ -153,8 +153,8 @@ df = read.csv(opts$inputFile);
 colNames = dimnames(t)[[2]]
 
 Gene_ID <- "Gene"
-Well_ID <- "SeqID"
-Score <- "FoldChange_56_34"
+Well_ID <- "GeneID"
+Score <- "FoldChange_34.56_NMR"
 
 if(!( (Gene_ID %in% colNames) & (Well_ID %in% colNames) &(Score %in% colNames)))
 {
