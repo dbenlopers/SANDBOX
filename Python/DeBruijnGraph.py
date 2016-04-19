@@ -7,7 +7,7 @@ class DeBruijnGraph:
     @staticmethod
     def chop(st, k):
         """ Chop a string up into k mers of given length """
-        for i in xrange(0, len(st)-(k-1)):
+        for i in range(0, len(st)-(k-1)):
             yield (st[i:i+k], st[i:i+k-1], st[i+1:i+k])
 
     class Node:
@@ -57,7 +57,7 @@ class DeBruijnGraph:
         # Keep track of head and tail nodes in the case of a graph with
         # Eularian path (not cycle)
         self.head, self.tail = None, None
-        for node in self.nodes.itervalues():
+        for node in self.nodes.values():
             if node.isBalanced():
                 self.nbal += 1
             elif node.isSemiBalanced():
@@ -100,7 +100,7 @@ class DeBruijnGraph:
             g.setdefault(self.tail, []).append(self.head)
         # graph g has an Eulerian cycle
         tour = []
-        src = g.iterkeys().next() # pick arbitrary starting node
+        src = next(iter(g)) # pick arbitrary starting node
 
         def __visit(n):
             while len(g[n]) > 0:
@@ -117,7 +117,7 @@ class DeBruijnGraph:
             tour = tour[sti:] + tour[:sti]
 
         # Return node list
-        return map(str, tour)
+        return [x for x in map(str, tour)]
 
     def toDot(self, dotFh, weights=False):
         """ Write dot representation to given filehandle.  If 'weights'
@@ -126,17 +126,17 @@ class DeBruijnGraph:
             copy of a k-1-mer. """
         dotFh.write("digraph \"Graph\" {\n")
         dotFh.write("  bgcolor=\"transparent\";\n")
-        for node in self.G.iterkeys():
+        for node in self.G.keys():
             lab = node.km1mer
             dotFh.write("  %s [label=\"%s\"] ;\n" % (lab, lab))
-        for src, dsts in self.G.iteritems():
+        for src, dsts in self.G.items():
             srclab = src.km1mer
             if weights:
                 weightmap = {}
                 if weights:
                     for dst in dsts:
                         weightmap[dst] = weightmap.get(dst, 0) + 1
-                for dst, v in weightmap.iteritems():
+                for dst, v in weightmap.items():
                     dstlab = dst.km1mer
                     dotFh.write("  %s -> %s [label=\"%d\"] ;\n" % (srclab, dstlab, v))
             else:
@@ -145,3 +145,18 @@ class DeBruijnGraph:
                     dstlab = dst.km1mer
                     dotFh.write("  %s -> %s [label=\"\"] ;\n" % (srclab, dstlab))
         dotFh.write("}\n")
+
+
+print('K = 3')
+g = DeBruijnGraph(["to_every_thing_turn_turn_turn_there_is_a_season"], 3)
+path = g.eulerianPath()
+print(path)
+superstring  = path[0]+''.join(map(lambda x: x[-1], path[1:]))
+print(superstring)
+
+print('K = 4')
+g = DeBruijnGraph(["to_every_thing_turn_turn_turn_there_is_a_season"], 4)
+path = g.eulerianPath()
+print(path)
+superstring  = path[0]+''.join(map(lambda x: x[-1], path[1:]))
+print(superstring)
