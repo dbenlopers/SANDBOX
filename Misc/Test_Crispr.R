@@ -14,3 +14,6 @@ print(head(df))
 
 out <- split(df$pvalue, f=df$Gene)
 rra <- aggregateRanks(glist=out, N=length(out))
+
+
+dd[ order(-dd[,4], dd[,1]), ]

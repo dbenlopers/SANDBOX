@@ -1,0 +1,176 @@
+
+## Python code
+
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import pylab
+
+plt.style.use('ggplot')
+
+
+Path = "/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/"
+gfpneg = pd.concat([pd.read_csv(os.path.join(Path, "XavierGaume_{}GFPneg.csv".format(x))) for x in range(1,17,1)])
+gfppos = pd.concat([pd.read_csv(os.path.join(Path, "XavierGaume_{}GFPpos.csv".format(x))) for x in range(1,17,1)])
+zscan4pos = pd.concat([pd.read_csv(os.path.join(Path, "XavierGaume_{}Zscan4pos.csv".format(x))) for x in range(1,17,1)])
+zscan4neg = pd.concat([pd.read_csv(os.path.join(Path, "XavierGaume_{}Zscan4neg.csv".format(x))) for x in range(1,17,1)])
+
+gfpneg.to_csv(os.path.join(Path, "AllGFPneg.csv"), header=True, index=False)
+gfppos.to_csv(os.path.join(Path, "AllGFPpos.csv"), header=True, index=False)
+zscan4neg.to_csv(os.path.join(Path, "AllZscan4neg.csv"), header=True, index=False)
+zscan4pos.to_csv(os.path.join(Path, "AllZscan4pos.csv"), header=True, index=False)
+
+## Plot the density of SpotCountCh2 for each pop
+
+# gfpneg['SpotCountCh2'].plot(kind='kde', alpha=0.5, legend=True)
+# gfppos['SpotCountCh2'].plot(kind='kde', alpha=0.5, legend=True)
+# plt.show()
+
+
+## work with gaussian for find intersections
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+
+gfppos = pd.read_csv("/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/AllGFPpos.csv")
+gfpneg = pd.read_csv("/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/AllGFPneg.csv")
+
+
+def solve(m1,m2,std1,std2):
+  a = 1/(2*std1**2) - 1/(2*std2**2)
+  b = m2/(std2**2) - m1/(std1**2)
+  c = m1**2 /(2*std1**2) - m2**2 / (2*std2**2) - np.log(std2/std1)
+  return np.roots([a,b,c])
+
+m1 = gfpneg['SpotCountCh2'].mean()
+std1 = gfpneg['SpotCountCh2'].std()
+m2 = gfppos['SpotCountCh2'].mean()
+std2 = gfppos['SpotCountCh2'].std()
+
+#Get point of intersect
+result = solve(m1,m2,std1,std2)
+
+
+result = result[result < 40]
+#Get point on surface
+x = np.linspace(0,40,10000)
+plot1=plt.plot(x,norm.pdf(x,m1,std1))
+plot2=plt.plot(x,norm.pdf(x,m2,std2))
+plot3=plt.plot(result,norm.pdf(result,m1,std1),'o')
+
+
+
+
+## R code
+
+library("data.table")
+library("ggplot2")
+
+gfpneg <- fread('/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/AllGFPneg.csv' , data.table=FALSE)
+gfppos <- fread('/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/AllGFPpos.csv' , data.table=FALSE)
+zscan4neg <- fread('/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/AllZscan4neg.csv' , data.table=FALSE)
+zscan4pos <- fread('/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/AllZscan4pos.csv' , data.table=FALSE)
+
+
+ggplot() + geom_density(data=gfpneg, aes(SpotCountCh2, color="GFP neg"), adjust=3) + geom_density(data=gfppos, aes(SpotCountCh2, color="GFP pos"), adjust=3)
+ggsave("GFP.pdf", path="/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/", plot=last_plot())
+
+
+ggplot() + geom_density(data=zscan4neg, aes(SpotCountCh2, color="Zscan4 neg"), adjust=3) + geom_density(data=zscan4pos, aes(SpotCountCh2, color="Zscan4 pos"), adjust=3)
+ggsave("Zscan4.pdf", path="/home/akopp/Documents/XavierGaume/Screen/Analyse13_04_2016/FilteredRawData/", plot=last_plot())
+
+
+
+ggplot() + geom_density(data=gfpneg, aes(SpotCountCh2, color="GFP neg"), adjust=3) + geom_density(data=gfppos, aes(SpotCountCh2, color="GFP pos"), adjust=3)+
+        geom_density(data=zscan4neg, aes(SpotCountCh2, color="Zscan4 neg"), adjust=3) + geom_density(data=zscan4pos, aes(SpotCountCh2, color="Zscan4 pos"), adjust=3)
+
+## mean for each channel and each pop
+colMeans(gfpneg)
+    SpotCountCh2 SpotTotalAreaCh2   SpotAvgAreaCh2  SpotAvgIntenCh2
+        8.632737        67.266934         7.636623      3473.286470
+colMeans(gfppos)
+    SpotCountCh2 SpotTotalAreaCh2   SpotAvgAreaCh2  SpotAvgIntenCh2
+        7.718849        58.438261         7.160003      3646.568374
+
+colMeans(zscan4neg)
+    SpotCountCh2 SpotTotalAreaCh2   SpotAvgAreaCh2  SpotAvgIntenCh2
+        8.670685        67.633566         7.657683      3475.894284
+colMeans(zscan4pos)
+    SpotCountCh2 SpotTotalAreaCh2   SpotAvgAreaCh2  SpotAvgIntenCh2
+        6.861157        50.151013         6.658314      3389.013243
+
+# get the break of curve (curve inflexion)
+x = seq(1,30)
+y = c(10,9,8,6,5.5,3,1,0.9,0.5,0.2,0.16,0.15,0.15,0.11,0.1,0,0,0,-0.01,-0.02,-0.02,-0.04,-0.05,-0.09,-0.098,-0.1,-0.5,-0.8,-1,-2)
+plot(x,y,type="l")
+lo <- loess(y~x)
+xl <- seq(min(x),max(x), (max(x) - min(x))/1000)
+out = predict(lo,xl)
+lines(xl, out, col='red', lwd=2)
+infl <- c(FALSE, diff(diff(out)>0)!=0)
+points(xl[infl ], out[infl ], col="blue")
+
+
+# get the intersect of two curve (neg and pos sample)
+getCut <- function(neg, pos, channel) {
+    c_pos <- as.numeric(unlist(as.vector(pos[channel])))
+    c_neg <- as.numeric(unlist(as.vector(neg[channel])))
+    d_pos <- density(c_pos, na.rm=T, n=2048, kernel="cosine")
+    d_neg <- density(c_neg, na.rm=T, n=2048, kernel="cosine")
+    x_pos_x_neg <- sort(setdiff(d_pos$x, d_neg$x))
+    y_x_pos_x_neg <- d_pos$y[which(d_pos$x %in% x_pos_x_neg)]
+    x_neg_x_pos <- setdiff(d_neg$x, d_pos$x)
+    y_x_neg_x_pos <- d_neg$y[which(d_neg$x %in% x_neg_x_pos)]
+    x_neg_pos <- intersect(d_pos$x, d_neg$x)
+    xx <- sort(unique(c(d_pos$x, d_neg$x)))
+    yy_pos <- rep(-1.0, length(xx))
+    yy_pos[which(xx %in% d_pos$x)] <- d_pos$y
+    yy_pos[which(yy_pos==-1.0)] <- approx(d_pos$x, d_pos$y, xout=x_neg_x_pos, method="linear", yleft=0.0, yright=0.0)$y
+    yy_neg <- rep(-1.0, length(xx))
+    yy_neg[which(xx %in% d_neg$x)] <- d_neg$y
+    yy_neg[which(yy_neg==-1.0)] <- approx(d_neg$x, d_neg$y, xout=x_pos_x_neg, method="linear", yleft=0.0, yright=0.0)$y
+    maxDelta = max(yy_pos-yy_neg, na.rm=TRUE)
+    maxId = max(which(abs(yy_pos-yy_neg-maxDelta) < 1e-10))
+    if (maxId > 1) {
+      idx <- which(yy_pos-yy_neg < 0)
+      idx <- idx[which(idx < maxId)]
+      lidx <- length(idx)
+      if (lidx) {
+        tidx <- idx[lidx]
+        for (ix in lidx:1) {
+          c_v <- yy_pos[idx[ix]]-yy_neg[idx[ix]]
+          p_v <- yy_pos[idx[ix]-1]-yy_neg[idx[ix]-1]
+          pp_v <- yy_pos[idx[ix]-2]-yy_neg[idx[ix]-2]
+          ppp_v <- yy_pos[idx[ix]-3]-yy_neg[idx[ix]-3]
+          if ((ix > 1) && (c_v < 0) && (p_v < 0 ) && (pp_v < 0) && (ppp_v < 0)) {
+            tidx <- idx[ix]
+            break
+          }
+        }
+        cutoff <- xx[tidx+1]
+      }
+      else {
+        cutoff <- quantile(c_pos, 0.05)
+      }
+    }
+    else {
+      if (xx[maxId] <= 0)
+        cutoff <- quantile(c_pos, 0.05)
+      else
+        cutoff <- xx[maxId]
+    }
+    return(cutoff)
+
+}
+
+x <- getCut(gfpneg, gfppos, "SpotCountCh2")
+y <- getCut(zscan4neg, zscan4pos, "SpotCountCh2")
+
+ggplot() + geom_density(data=gfpneg, aes(SpotCountCh2, color="GFP neg"), adjust=3) + geom_density(data=gfppos, aes(SpotCountCh2, color="GFP pos"), adjust=3)+
+            geom_vline(xintercept = x, colour="green")+
+        geom_density(data=zscan4neg, aes(SpotCountCh2, color="Zscan4 neg"), adjust=3) + geom_density(data=zscan4pos, aes(SpotCountCh2, color="Zscan4 pos"), adjust=3)+
+            geom_vline(xintercept = y, colour="red")
