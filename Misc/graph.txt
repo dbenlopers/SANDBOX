@@ -174,3 +174,68 @@ ggplot() + geom_density(data=gfpneg, aes(SpotCountCh2, color="GFP neg"), adjust=
             geom_vline(xintercept = x, colour="green")+
         geom_density(data=zscan4neg, aes(SpotCountCh2, color="Zscan4 neg"), adjust=3) + geom_density(data=zscan4pos, aes(SpotCountCh2, color="Zscan4 pos"), adjust=3)+
             geom_vline(xintercept = y, colour="red")
+
+
+
+## plot a screen with ctrl in other color
+
+DF = read.csv('/home/akopp/Documents/Criblage ELISA Eric Champagne/Elisa_WithoutNorm_WithoutOutlier.csv' )
+df2 = DF[!DF$PlateMap %in% c("1000", "500", "250", "125", "0", "Neg3", "Neg3 NT", "NT", "PLK1", "neg 1", "Neg Pool"),]
+df2 <- df2[order(df$Well.Mean),]
+
+
+DF_WG <- DF[!DF$PlateMap %in% c("1000", "500", "250", "125", "0"),]
+DF_Ctrl <- DF[DF$PlateMap %in% c("Neg3", "Neg3 NT"),]
+DF_WGC <- DF_WG[!DF_WG$PlateMap %in% c("Neg3", "Neg3 NT"),]
+
+ggplot() +geom_point(data=DF_WGC, aes(x="Criblage", y=Well.Mean), position = position_jitter(width = .7))+ geom_point(data=DF_Ctrl, aes(x="Criblage", y=Well.Mean, colour = PlateMap), position = position_jitter(width = .7), size=3)
+
+DF_CTRL <- DF[!DF$PlateMap %in% c("1000", "500", "250", "125", "0", "Neg3", "Neg3 NT", "NT", "PLK1", "neg 1", "Neg Pool"),]
+DF_CTRL %>%
+  group_by(c(PlateMap, PlateName)) %>%
+  summarise_each(funs(mean(., na.rm=TRUE)))
+
+
+ ggplot(df)  + geom_line(aes(1:nrow(df), y=Well.Mean, color='Mean')) +
+    geom_line(aes(1:nrow(df), y=Well.Std, color='Std')) +
+    geom_line(aes(1:nrow(df), y=SSMD.UnPaired.UnEqual, color='SSMD.UnPaired.UnEqual'))+
+    geom_line(aes(1:nrow(df), y=SSMD.UnPaired.Equal , color='SSMD.UnPaired.Equal'))+
+    geom_line(aes(1:nrow(df), y=SSMD.UnPaired.UnEqual.R, color='SSMD.UnPaired.UnEqual.R'))+
+    geom_line(aes(1:nrow(df), y=SSMD.UnPaired.Equal.R, color='SSMD.UnPaired.Equal.R'))+
+    geom_line(aes(1:nrow(df), y=ZScore, color='ZScore'))+
+    geom_hline(yintercept = 100) + scale_y_continuous(limits = c(-100, 200))
+
+
+    Well.Mean                   1.000000
+    Rep1.Mean                   0.875078
+    Rep2.Mean                   0.868313
+    Rep3.Mean                   0.784771
+    Well.Std                   -0.220814
+    SSMD.UnPaired.UnEqual       0.111295
+    SSMD.UnPaired.Equal         0.110470
+    SSMD.UnPaired.UnEqual.R     0.111239
+    SSMD.UnPaired.Equal.R       0.110405
+    SSMD.Paired.UMVUE           0.059158
+    SSMD.Paired.MM              0.059158
+    SSMD.Paired.UMVUE.R         0.058771
+    SSMD.Paired.MM.R            0.058771
+    TTest.EqualVar.P.Val        0.375664
+    TTest.EqualVar.FDR          0.366162
+    TTest.UnEqualVar.P.Val      0.353654
+    TTest.UnEqualVar.FDR        0.339168
+    TStat.UnPaired.Equal        0.108491
+    TStat.UnPaired.Equal.R      0.108443
+    TStat.UnPaired.UnEqual      0.110470
+    TStat.UnPaired.UnEqual.R    0.110405
+    TStat.Paired                0.059158
+    TStat.Paired.R              0.058771
+    ZScore                      0.495667
+    ZScore.R                    0.467124
+
+ggplot(df)+geom_point(aes(x=Well.Mean, y=TStat.Paired, color='TStat.Paired.Equal'))+
+            geom_point(aes(x=Well.Mean, y=SSMD.Paired.UMVUE , color='SSMD.Paired.UMVUE '))+
+            geom_point(aes(x=Well.Mean, y=SSMD.Paired.MM  , color='SSMD.Paired.MM '))+
+            scale_y_continuous(limits = c(-200, 200))
+
+ggplot(df)+geom_point(aes(x=Well.Mean, y=ZScore, color='ZScore'))+
+                        scale_y_continuous(limits = c(-200, 200))
