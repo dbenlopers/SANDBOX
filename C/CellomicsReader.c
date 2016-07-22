@@ -114,14 +114,14 @@ int main(){
 
     printf("%i %i %d %d %i \n", width, height, nplanes, nbits, compression);
 
-    pdat = &dat[52];
-    int16_t image[width * height * nplanes];
-    int i ;
-    for (i=0; i<width*height*nplanes; i++) {
-        image[i] = (*((unsigned short *)pdat))/(int16_t)256;
-        printf("%d \n", image[i]);
-        pdat += sizeof(unsigned short);
-    }
+    // pdat = &dat[52];
+    // int16_t image[width * height * nplanes];
+    // int i ;
+    // for (i=0; i<width*height*nplanes; i++) {
+    //     image[i] = (*((unsigned short *)pdat))/(int16_t)256;
+    //     printf("%d \n", image[i]);
+    //     pdat += sizeof(unsigned short);
+    // }
 
     return 0;
 }

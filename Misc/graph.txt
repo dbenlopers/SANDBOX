@@ -206,31 +206,6 @@ DF_CTRL %>%
     geom_hline(yintercept = 100) + scale_y_continuous(limits = c(-100, 200))
 
 
-    Well.Mean                   1.000000
-    Rep1.Mean                   0.875078
-    Rep2.Mean                   0.868313
-    Rep3.Mean                   0.784771
-    Well.Std                   -0.220814
-    SSMD.UnPaired.UnEqual       0.111295
-    SSMD.UnPaired.Equal         0.110470
-    SSMD.UnPaired.UnEqual.R     0.111239
-    SSMD.UnPaired.Equal.R       0.110405
-    SSMD.Paired.UMVUE           0.059158
-    SSMD.Paired.MM              0.059158
-    SSMD.Paired.UMVUE.R         0.058771
-    SSMD.Paired.MM.R            0.058771
-    TTest.EqualVar.P.Val        0.375664
-    TTest.EqualVar.FDR          0.366162
-    TTest.UnEqualVar.P.Val      0.353654
-    TTest.UnEqualVar.FDR        0.339168
-    TStat.UnPaired.Equal        0.108491
-    TStat.UnPaired.Equal.R      0.108443
-    TStat.UnPaired.UnEqual      0.110470
-    TStat.UnPaired.UnEqual.R    0.110405
-    TStat.Paired                0.059158
-    TStat.Paired.R              0.058771
-    ZScore                      0.495667
-    ZScore.R                    0.467124
 
 ggplot(df)+geom_point(aes(x=Well.Mean, y=TStat.Paired, color='TStat.Paired.Equal'))+
             geom_point(aes(x=Well.Mean, y=SSMD.Paired.UMVUE , color='SSMD.Paired.UMVUE '))+
@@ -239,3 +214,30 @@ ggplot(df)+geom_point(aes(x=Well.Mean, y=TStat.Paired, color='TStat.Paired.Equal
 
 ggplot(df)+geom_point(aes(x=Well.Mean, y=ZScore, color='ZScore'))+
                         scale_y_continuous(limits = c(-200, 200))
+
+## enrichissment de plaque
+
+df = pd.read_csv("/home/akopp/Documents/Dux4Juin2016/DATA_BGRemovedB2_RatioNeg1NTwithoutE23G23.csv")
+x = df.query("PlateMap == 'Neg1' or PlateMap == 'Neg1 NT' or PlateMap == 'DUX4+484' or PlateMap == 'Non Trans NT' or PlateMap == 'Milieu' or PlateMap == 'PLK1 NT'")
+y = df.drop(x.index)
+yy = y.sort_values('Well Mean', ascending=False)
+yy.iloc[0:100]['PlateName'].value_counts()
+
+df = pd.read_csv("/home/akopp/Documents/Dux4Juin2016/DATA_BGRemovedB2_RatioNeg1withoutE23G23.csv")
+x = df.query("PlateMap == 'Neg1' or PlateMap == 'Neg1 NT' or PlateMap == 'DUX4+484' or PlateMap == 'Non Trans NT' or PlateMap == 'Milieu' or PlateMap == 'PLK1 NT'")
+y = df.drop(x.index)
+yy = y.sort_values('Well Mean', ascending=False)
+yy.iloc[0:50]['PlateName'].value_counts()
+
+
+actual = pd.read_csv("/home/akopp/Documents/Dux4Juin2016/HitListActual.csv")
+previous = pd.read_csv("/home/akopp/Documents/Dux4Juin2016/HitListPreviousScreen.csv")
+
+seta = set(actual.iloc[0:50]['PlateMap'])
+setp = set(previous.iloc[0:50]['Name'])
+print(seta.intersection(setp))
+
+
+seta = set(actual.iloc[0:100]['PlateMap'])
+setp = set(previous.iloc[0:100]['Name'])
+print(seta.intersection(setp))
