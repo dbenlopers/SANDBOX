@@ -3,6 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include <xmmintrin.h>
+#include <x86intrin.h>
 #include <time.h>
 #define size 65536
 
@@ -40,6 +41,32 @@ float ScalarSSE(float *m1, float *m2) {
 
     return prod;
 
+}
+
+int16_t find_max(int16_t* buff, int size)
+{
+    int16_t maxmax[8];
+    int i;
+    int16_t max = buff[0];
+
+    __m128i *f8 = (__m128i*)buff;
+    __m128i maxval = _mm_setzero_si128();
+    __m128i maxval2 = _mm_setzero_si128();
+    for (i = 0; i < size / 16; i++) {
+        maxval = _mm_max_epi16(maxval, f8[i]);
+    }
+    maxval2 = maxval;
+    for (i = 0; i < 3; i++) {
+        maxval = _mm_max_epi16(maxval, _mm_shufflehi_epi16(maxval, 0x3));
+        _mm_store_si128(&maxmax, maxval);
+        maxval2 = _mm_max_epi16(maxval2, _mm_shufflelo_epi16(maxval2, 0x3));
+        _mm_store_si128(&maxmax, maxval2);
+    }
+    _mm_store_si128(&maxmax, maxval);
+    for(i = 0; i < 8; i++)
+        if(max < maxmax[i])
+            max = maxmax[i];
+    return max;
 }
 
 int main(int argc, char * argv[]) {

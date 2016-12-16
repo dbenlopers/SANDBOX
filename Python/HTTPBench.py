@@ -14,7 +14,7 @@ Website = ["http://www.google.fr",
             "http://www.hardware.fr",
             "http://www.igbmc.fr"]
 
-Website = ["http://www.google.com"]
+# Website = ["http://www.google.com"]
 
 def BenchRequests(WebList):
     for site in WebList:
