@@ -2,7 +2,7 @@ library(drc)
 library(ggplot2)
 
 df <- read.csv("/home/akopp/Documents/Boh/AC_Trastuzinab_DATA.csv")
-head(df)
+outfilepath = "/home/akopp/Documents/Boh/AC_Trastuzinab_DATA_EC50.csv"
 
 # # concentration for cetuximab
 # conc <- c(0, 0.981862765594676, 1.37980277426671, 1.77774278293875, 2.17568279161079,
@@ -12,15 +12,20 @@ head(df)
 conc <- c(0, 0.605834976645399, 1.00377498531744, 1.40171499398947, 1.79965500266151,
           2.19759501133355,2.59553502000559, 2.99347502867762, 3.39141503734966, 3.7893550460217,
           4.18729505469374, 4.58523506336578, 4.98317507203781, 5.38111508070985)
-# # concentration for chemical compound
+# #concentration for chemical compound
 # conc <- c(0, 0.69897, 1.11394335, 1.49136169, 1.89762709,
 #           2.29446623, 2.6919651, 3.08955188, 3.48742121, 3.88536122,
 #           4.28330123, 4.68124124, 5.07918125, 5.47712125)
 
-dr_data <- data.frame(Slope = double(nrow(df)), 
-                      LowerLimit = double(nrow(df)), 
-                      UpperLimit = double(nrow(df)),
-                      EC50 = double(nrow(df)))
+dr_data <- data.frame(
+  Slope = double(nrow(df)),
+  LowerLimit = double(nrow(df)),
+  UpperLimit = double(nrow(df)),
+  EC50 = double(nrow(df)),
+  EC50_µM = double(nrow(df)),
+  Fitting = double(nrow(df)),
+  AUC = double(nrow(df))
+)
 
 df[, 1:14] <- df[, 1:14] / df[, 1]
 
@@ -36,7 +41,14 @@ for (i in seq(1, nrow(df), 3)) {
   drmc(errorm = TRUE)
   dr <- drm(response ~ conc, fct = LL.4(names = c("Slope", "LowerLimit", "UpperLimit", "EC50")))
   dr_data[i, 1:4] <- dr$fit$par
+  dr_data[i, 6] <- dr$fit$value
   
+  dose_response <- function(conc) {
+    res <- predict(dr, data.frame(conc = conc))
+    res
+  }
+  AUC <- integrate(dose_response, lower = min(conc), upper = max(conc))
+  dr_data[i, 7] <- AUC$value
   
   # ggplot2 plotting part
   newdata <- expand.grid(conc = seq(min(conc), max(conc), length = 100))
@@ -53,7 +65,7 @@ for (i in seq(1, nrow(df), 3)) {
     geom_errorbar(data = input, aes(x = conc, ymin = meanResponse - sdResponse, ymax = meanResponse + sdResponse), width = 0.1, alpha = 0.4) +
     geom_ribbon(data = newdata, aes(x = conc, ymin = pmin, ymax = pmax), alpha = 0.2) +
     geom_line(data = newdata, aes(x = conc, y = p)) +
-    xlab('Viability') + ylab('Concentration') + ylim(c(-0.2, 1.3))
+    xlab('Dose concentration') + ylab('Viability') + ylim(c(-0.2, 1.4))
   FilePath <- file.path("/home/akopp/Documents/Boh/test", c(elem, '.pdf'))
   ggsave(FilePath, plot = last_plot(), device = "pdf")
 
@@ -69,6 +81,8 @@ for (i in seq(1, nrow(df), 3)) {
 }
 
 dr_data <- cbind(dr_data, df[, 15:16])
-head(dr_data[dr_data$Slope != 0,])
+dr_dataF <- dr_data[dr_data$Slope != 0,]
+dr_dataF$EC50_µM <- (10 ** dr_dataF$EC50) / 10000
+head(dr_dataF)
 
-write.csv(x = dr_data[dr_data$Slope != 0,], file = "/home/akopp/Documents/Boh/AC_Trastuzinab_DATA_EC50.csv")
+write.csv(x = dr_dataF, file = outfilepath)
