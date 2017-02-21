@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+"""
+Julia fractal
+"""
+
 import numpy as np
 cimport numpy as np
 import cython
