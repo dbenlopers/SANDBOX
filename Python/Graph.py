@@ -1,289 +1,266 @@
-# coding=utf-8
-""" A Python Class
-A simple Python graph class, demonstrating the essential
-facts and functionality of graphs.
-"""
+# -*- coding: utf-8 -*-
+import collections
+import heapq
 
-__author__ = "Arnaud KOPP"
-__copyright__ = "© 2014-2015 KOPP Arnaud All Rights Reserved"
-__credits__ = ["KOPP Arnaud"]
-__license__ = "GPLv3"
-__maintainer__ = "Arnaud KOPP"
-__email__ = "kopp.arnaud@gmail.com"
+
+def find_path(graph, start, end, path=None):
+    """
+
+    :param graph: dict
+    :param start: str: key
+    :param end:   str: key
+    :param path:  list
+    :return:
+    """
+    if path is None:
+        path = [start]
+    path.append(start)
+
+    if start == end:
+        return path
+
+    if start not in graph:
+        return None
+
+    for vertex in graph[start]:
+        if vertex not in path:
+            return find_path(graph, vertex, end, path)
+
+    return None
+
+
+class Vertex(object):
+
+    def __init__(self, value, weight=None):
+        self.value = value
+        self.weight = weight
+        self.is_visited = False
+        self._neighbors = []
+
+    def mark_as_visited(self):
+        self.is_visited = True
+
+    def link(self, vertex, distance=1):
+        self._neighbors.append((vertex, distance))
+
+    def get_neighbors(self, values_list=False):
+        if values_list:
+            return [(v.value, distance) for v, distance in self._neighbors]
+        return self._neighbors
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Use vertex as a context manager, mark it as visited after all
+
+        """
+        self.mark_as_visited()
+
+    def __repr__(self):
+        return "%s('%s', neighbors=%d)" % (
+            self.__class__.__name__, self.value, len(self._neighbors))
+
+
+def bfs(start_vertex):
+    """Breadth-first search implementation"""
+
+    queue = collections.deque()
+    start_vertex.mark_as_visited()
+    queue.appendleft(start_vertex)
+
+    while len(queue):
+        vertex = queue.pop()
+        for v in vertex.get_neighbors():
+            if not v.is_visited:
+                # TODO: calculate distance
+                v.mark_as_visited()
+                queue.appendleft(v)
 
 
 class Graph(object):
-    def __init__(self, graph_dict={}):
-        """ initializes a graph object """
-        self.__graph_dict = graph_dict
 
-    def vertices(self):
-        """ returns the vertices of a graph """
-        return list(self.__graph_dict.keys())
+    """Basic graph implementation"""
 
-    def edges(self):
-        """ returns the edges of a graph """
-        return self.__generate_edges()
+    def __init__(self, directed=True):
+        self.vertices = {}
+        self._directed = directed
 
-    def add_vertex(self, vertex):
-        """ If the vertex "vertex" is not in
-            self.__graph_dict, a key "vertex" with an empty
-            list as a value is added to the dictionary.
-            Otherwise nothing has to be done.
+    @property
+    def is_directed(self):
+        return self._directed
+
+    def add_vertex(self, value):
+        """Add vertex by value or return already existent
+
+        :param value: any hashable value
         """
-        if vertex not in self.__graph_dict:
-            self.__graph_dict[vertex] = []
+        if value in self.vertices:
+            return self.vertices[value]
 
-    def add_edge(self, edge):
-        """ assumes that edge is of type set, tuple or list;
-            between two vertices can be multiple edges!
+        vertex = Vertex(value=value)
+        self.vertices[vertex.value] = vertex
+        return vertex
+
+    def add_edge(self, v1, v2, distance=1):
+        """Add edge between two vertices with some distance
+
+        :param v1: vertex 1
+        :param v2: vertex 2
+        :param distance: int: 1 by default
         """
-        edge = set(edge)
-        vertex1 = edge.pop()
-        if edge:
-            # not a loop
-            vertex2 = edge.pop()
-        else:
-            # a loop
-            vertex2 = vertex1
-        if vertex1 in self.__graph_dict:
-            self.__graph_dict[vertex1].append(vertex2)
-        else:
-            self.__graph_dict[vertex1] = [vertex2]
+        if distance < 0:
+            raise ValueError(
+                'Wrong distance value: {}. Must be >= 0'.format(distance))
 
-    def __generate_edges(self):
-        """ A static method generating the edges of the
-            graph "graph". Edges are represented as sets
-            with one (a loop back to the vertex) or two
-            vertices
-        """
-        edges = []
-        for vertex in self.__graph_dict:
-            for neighbour in self.__graph_dict[vertex]:
-                if {neighbour, vertex} not in edges:
-                    edges.append({vertex, neighbour})
-        return edges
+        v1.link(v2, distance=distance)
+        if not self.is_directed:
+            v2.link(v1, distance=distance)
 
-    def __str__(self):
-        res = "vertices: "
-        for k in self.__graph_dict:
-            res += str(k) + " "
-        res += "\nedges: "
-        for edge in self.__generate_edges():
-            res += str(edge) + " "
-        return res
-
-    def find_isolated_vertices(self):
-        """ returns a list of isolated vertices. """
-        graph = self.__graph_dict
-        isolated = []
-        for vertex in graph:
-            print(isolated, vertex)
-            if not graph[vertex]:
-                isolated += [vertex]
-        return isolated
-
-    def find_path(self, start_vertex, end_vertex, path=[]):
-        """ find a path from start_vertex to end_vertex
-            in graph """
-        graph = self.__graph_dict
-        path = path + [start_vertex]
-        if start_vertex == end_vertex:
-            return path
-        if start_vertex not in graph:
-            return None
-        for vertex in graph[start_vertex]:
-            if vertex not in path:
-                extended_path = self.find_path(vertex,
-                                               end_vertex,
-                                               path)
-                if extended_path:
-                    return extended_path
-        return None
-
-    def find_all_paths(self, start_vertex, end_vertex, path=[]):
-        """ find all paths from start_vertex to
-            end_vertex in graph """
-        graph = self.__graph_dict
-        path = path + [start_vertex]
-        if start_vertex == end_vertex:
-            return [path]
-        if start_vertex not in graph:
-            return []
-        paths = []
-        for vertex in graph[start_vertex]:
-            if vertex not in path:
-                extended_paths = self.find_all_paths(vertex,
-                                                     end_vertex,
-                                                     path)
-                for p in extended_paths:
-                    paths.append(p)
-        return paths
-
-    def is_connected(self, vertices_encountered=set(), start_vertex=None):
-        """ determines if the graph is connected """
-        gdict = self.__graph_dict
-        vertices = gdict.keys()
-        if not start_vertex:
-            # chosse a vertex from graph as a starting point
-            start_vertex = vertices[0]
-        vertices_encountered.add(start_vertex)
-        if len(vertices_encountered) != len(vertices):
-            for vertex in gdict[start_vertex]:
-                if vertex not in vertices_encountered:
-                    if self.is_connected(vertices_encountered, vertex):
-                        return True
-        else:
-            return True
-        return False
-
-    def vertex_degree(self, vertex):
-        """ The degree of a vertex is the number of edges connecting
-            it, i.e. the number of adjacent vertices. Loops are counted
-            double, i.e. every occurence of vertex in the list
-            of adjacent vertices. """
-        adj_vertices = self.__graph_dict[vertex]
-        degree = len(adj_vertices) + adj_vertices.count(vertex)
-        return degree
-
-    def degree_sequence(self):
-        """ calculates the degree sequence """
-        seq = []
-        for vertex in self.__graph_dict:
-            seq.append(self.vertex_degree(vertex))
-        seq.sort(reverse=True)
-        return tuple(seq)
+    @property
+    def size(self):
+        return len(self.vertices)
 
     @staticmethod
-    def is_degree_sequence(sequence):
-        """ Method returns True, if the sequence "sequence" is a
-            degree sequence, i.e. a non-increasing sequence.
-            Otherwise False is returned.
+    def build_graph(dict_struct, directed=True):
+        """Build graph from dictionary
+
+        :param directed: bool: parameter defines is graph directed
+        :param dict_struct: dict
+        Example:
+            graph = {'A': [('B', 1), ('C', 2)],
+                     'B': [('C', 3), ('D', 2)],
+                     'C': [('D', 1)]}
+        Where keys are vertices and values are edges between.
+        Each edge can be represented:
+            - as tuple - ('value', distance)
+            - as string - value with default distance
         """
-        # check if the sequence sequence is non-increasing:
-        return all(x >= y for x, y in zip(sequence, sequence[1:]))
+        g = Graph(directed=directed)
+        for value, edges in dict_struct.items():
+            new_vertex = g.add_vertex(value)
+            if edges:
+                for edge in edges:
+                    if isinstance(edge, (list, tuple, set)):
+                        new_vertex_val, distance = edge
+                    elif isinstance(edge, str):
+                        new_vertex_val = edge
+                        distance = 1
+                    else:
+                        raise ValueError(
+                            "Wrong edge format: {}. Must be str or tuple "
+                            "('A', 1)".format(edge))
+                    v2 = g.add_vertex(new_vertex_val)
+                    g.add_edge(v1=new_vertex, v2=v2, distance=distance)
+        return g
 
-    def delta(self):
-        """ the minimum degree of the vertices """
-        min = 100000000
-        for vertex in self.__graph_dict:
-            vertex_degree = self.vertex_degree(vertex)
-            if vertex_degree < min:
-                min = vertex_degree
-        return min
+    def as_dict(self):
+        return {
+            k: v.get_neighbors(values_list=True)
+            for k, v in self.vertices.items()
+        }
 
-    def Delta(self):
-        """ the maximum degree of the vertices """
-        max = 0
-        for vertex in self.__graph_dict:
-            vertex_degree = self.vertex_degree(vertex)
-            if vertex_degree > max:
-                max = vertex_degree
-        return max
+    def __contains__(self, item):
+        if isinstance(item, Vertex):
+            return item.value in self.vertices
+        return item in self.vertices
 
-    def density(self):
-        """ method to calculate the density of a graph """
-        g = self.__graph_dict
-        V = len(g.keys())
-        E = len(self.edges())
-        return 2.0 * E / (V * (V - 1))
+    def __iter__(self):
+        return self.vertices.values()
 
-    def diameter(self):
-        """ calculates the diameter of the graph """
+    def __len__(self):
+        return self.size
 
-        v = self.vertices()
-        pairs = [(v[i], v[j]) for i in range(len(v) - 1) for j in range(i + 1, len(v))]
-        smallest_paths = []
-        for (s, e) in pairs:
-            paths = self.find_all_paths(s, e)
-            smallest = sorted(paths, key=len)[0]
-            smallest_paths.append(smallest)
+    def __repr__(self):
+        return "%s(directed=%s, size=%d)" % (
+            self.__class__.__name__, self.is_directed, self.size)
 
-        smallest_paths.sort(key=len)
 
-        # longest path is at the end of list,
-        # i.e. diameter corresponds to the length of this path
-        diameter = len(smallest_paths[-1])
-        return diameter
+class Path(object):
+    """Dijkstra path helper. It stores result of Dijkstra path result dict and
+    help to get full vertices path by source and destination values"""
 
-    @staticmethod
-    def erdoes_gallai(dsequence):
-        """ Checks if the condition of the Erdoes-Gallai inequality
-            is fullfilled
+    def __init__(self, path_dict):
+        self._path_dict = path_dict
+        self._idx = {v.value: v for v in path_dict.keys()}
+
+    def get_path(self, src_value, dst_value):
+        """Expand vertices path
+
+        :param src_value: src vertex value
+        :param dst_value: dst vertex value
+        :return: list of vertices
         """
-        if sum(dsequence) % 2:
-            # sum of sequence is odd
-            return False
-        if Graph.is_degree_sequence(dsequence):
-            for k in range(1, len(dsequence) + 1):
-                left = sum(dsequence[:k])
-                right = k * (k - 1) + sum([min(x, k) for x in dsequence[k:]])
-                if left > right:
-                    return False
-        else:
-            # sequence is increasing
-            return False
-        return True
+        vertex = self._path_dict[self._idx[dst_value]]
+        path = [vertex]
+
+        # collect path list in backward order
+        while vertex.value != src_value:
+            vertex = self._path_dict[vertex]
+            path.append(vertex)
+
+        # Reverse the path list and append destination vertex
+        path = path[::-1]
+        path.append(self._idx[dst_value])
+        return path
+
+    def __repr__(self):
+        return "%s(of=%s)" % (self.__class__.__name__, self._idx.keys())
 
 
-if __name__ == "__main__":
+def dijkstra_search(vertex_1):
+    """Dijkstra - Shortest Path Problem for Weighted Graphs
 
-    g = {"a": ["d"],
-         "b": ["c"],
-         "c": ["b", "c", "d", "e"],
-         "d": ["a", "c"],
-         "e": ["c"],
-         "f": []
-         }
+    Main idea is similar like in BFS but priority queue (heap) is used for
+    vertices neighbors list
 
-    graph = Graph(g)
+    :param vertex_1: start point
+    """
 
-    print(graph)
+    queue = []
+    vertex_1.weight = 0
 
-    for node in graph.vertices():
-        print(graph.vertex_degree(node))
+    # Push distance and vertex
+    heapq.heappush(queue, (0, vertex_1))
 
-    print("List of isolated vertices:")
-    print(graph.find_isolated_vertices())
+    path = {vertex_1: None}
+    distances = {vertex_1.value: 0}
+    weights = {vertex_1: 0}
 
-    print("""A path from "a" to "e":""")
-    print(graph.find_path("a", "e"))
+    while len(queue):
+        current_weight, current_v = heapq.heappop(queue)
 
-    print("""All pathes from "a" to "e":""")
-    print(graph.find_all_paths("a", "e"))
+        with current_v as current_v:
+            for neighbor, dst in current_v.get_neighbors():
+                if neighbor.is_visited:
+                    continue
 
-    print("The maximum degree of the graph is:")
-    print(graph.Delta())
+                if neighbor not in weights:
+                    weights[neighbor] = weights[current_v] + dst
 
-    print("The minimum degree of the graph is:")
-    print(graph.delta())
+                # Save predecessor if not presented
+                if neighbor not in path:
+                    path[neighbor] = current_v
 
-    print("Edges:")
-    print(graph.edges())
+                # Find a path shorter than previous
+                if weights[current_v] + dst < weights[neighbor]:
+                    weights[neighbor] = weights[current_v] + dst
+                    # Update predecessor
+                    path[neighbor] = current_v
 
-    print("Degree Sequence: ")
-    ds = graph.degree_sequence()
-    print(ds)
+                # Update distance
+                distances[neighbor.value] = weights[neighbor]
+                heapq.heappush(queue, (weights[neighbor], neighbor))
 
-    fullfilling = [[2, 2, 2, 2, 1, 1],
-                   [3, 3, 3, 3, 3, 3],
-                   [3, 3, 2, 1, 1]
-                   ]
-    non_fullfilling = [[4, 3, 2, 2, 2, 1, 1],
-                       [6, 6, 5, 4, 4, 2, 1],
-                       [3, 3, 3, 1]]
+    return distances, Path(path_dict=path)
 
-    for sequence in fullfilling + non_fullfilling:
-        print(sequence, Graph.erdoes_gallai(sequence))
 
-    print("Add vertex 'z':")
-    graph.add_vertex("z")
-    print(graph)
+if __name__ == '__main__':
+    graph = {'A': ['B', 'C'],
+             'B': ['C', 'D'],
+             'C': ['D'],
+             'D': ['C'],
+             'E': ['F'],
+             'F': ['C']}
 
-    print("Add edge ('x','y'): ")
-    graph.add_edge(('x', 'y'))
-    print(graph)
-
-    print("Add edge ('a','d'): ")
-    graph.add_edge(('a', 'd'))
-    print(graph)
+    assert find_path(graph=graph, start='A', end='D') == ['A', 'B', 'C', 'D']
