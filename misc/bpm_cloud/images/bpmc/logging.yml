@@ -1,0 +1,38 @@
+version: 1
+formatters:
+  geformatter:
+    (): ge.bpmc.utilities.logging.GEFormatter
+    logger_type: standard
+    show_details: 0
+  gedebugformatter:
+    (): ge.bpmc.utilities.logging.GEFormatter
+    logger_type: debug
+    show_details: 1
+  gejsonformatter:
+    (): ge.bpmc.utilities.logging.GEJsonFormatter
+    logger_type: docker
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  default:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: geformatter
+    stream: ext://sys.stdout
+  json:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: gejsonformatter
+    stream: ext://sys.stdout
+loggers:
+  bpm:
+    level: INFO
+    handlers: [json]
+    propagate: no
+  bpm_profiling:
+    level: INFO
+    handlers: [json]
+    propagate: no
+root:
+  level: $CPT_LOGLEVEL
+  handlers: [json]

@@ -1,0 +1,324 @@
+version: '3.1'
+
+services:
+  bpmc-api-public:
+    image: ${BPM_REPO}/bpmc_app:1.0
+    environment:
+      CPT_TYPE: api
+      CPT_APP: public
+      CPT_IGNITE: "true"
+      APP_STORAGE_HOST: bpmc-api-storage
+      APP_STORAGE_PORT: 8080
+      APP_DATABASE_USER: bpm
+      APP_DATABASE_PASSWORD_FILE: /run/secrets/APP_DATABASE_PASSWORD
+      APP_DATABASE_DSN: bpmc-database:3306/bpm
+      APP_BROKER_PASSWORD: none
+      APP_ROLETOKEN_FILE: /run/secrets/APP_ROLETOKEN
+      APP_CPTTOKEN_FILE: /run/secrets/APP_CPTTOKEN
+    networks:
+      - bpm_app
+      - bpm_database
+    secrets:
+      - source: APP_DATABASE_PASSWORD
+        mode: 0444
+      - source: APP_ROLETOKEN
+        mode: 0444
+      - source: APP_CPTTOKEN
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-api-available:
+    image: ${BPM_REPO}/bpmc_app:1.0
+    environment:
+      CPT_TYPE: api
+      CPT_APP: available 
+      APP_DATABASE_USER: bpm
+      APP_DATABASE_PASSWORD_FILE: /run/secrets/APP_DATABASE_PASSWORD
+      APP_DATABASE_DSN: bpmc-database:3306/bpm
+      APP_BROKER_PASSWORD: none
+      APP_ROLETOKEN_FILE: /run/secrets/APP_ROLETOKEN
+    networks:
+      - bpm_app
+      - bpm_database
+    secrets:
+      - source: APP_DATABASE_PASSWORD
+        mode: 0444
+      - source: APP_ROLETOKEN
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-api-storage:
+    image: ${BPM_REPO}/bpmc_app:1.0
+    environment:
+      CPT_TYPE: api
+      CPT_APP: storage
+      APP_STORAGE_DAV_LOGIN: bpm
+      APP_STORAGE_DAV_PASSWORD_FILE: /run/secrets/APP_WEBDAV_PASSWORD
+      APP_DATABASE_USER: bpm
+      APP_DATABASE_PASSWORD_FILE: /run/secrets/APP_DATABASE_PASSWORD
+      APP_DATABASE_DSN: bpmc-database:3306/bpm
+      APP_BROKER_USER: bpm
+      APP_BROKER_PASSWORD_FILE: /run/secrets/APP_BROKER_PASSWORD
+      APP_BROKER_DSN: bpmc-broker:5672
+      APP_CPTTOKEN_FILE: /run/secrets/APP_CPTTOKEN
+    networks:
+      - bpm_app
+      - bpm_database
+      - bpm_broker
+    secrets:
+      - source: APP_DATABASE_PASSWORD
+        mode: 0444
+      - source: APP_BROKER_PASSWORD
+        mode: 0444
+      - source: APP_CPTTOKEN
+        mode: 0444
+      - source: APP_WEBDAV_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-worker-processing:
+    image: ${BPM_REPO}/bpmc_app:1.0
+    environment:
+      CPT_TYPE: worker
+      CPT_APP: processing
+      APP_STORAGE_HOST: bpmc-api-storage
+      APP_STORAGE_PORT: 8080
+      APP_DATABASE_USER: bpm
+      APP_DATABASE_PASSWORD_FILE: /run/secrets/APP_DATABASE_PASSWORD
+      APP_DATABASE_DSN: bpmc-database:3306/bpm
+      APP_BROKER_USER: bpm
+      APP_BROKER_PASSWORD_FILE: /run/secrets/APP_BROKER_PASSWORD
+      APP_BROKER_DSN: bpmc-broker:5672
+      APP_CPTTOKEN_FILE: /run/secrets/APP_CPTTOKEN
+    networks:
+      - bpm_app
+      - bpm_database
+      - bpm_broker
+    secrets:
+      - source: APP_DATABASE_PASSWORD
+        mode: 0444
+      - source: APP_BROKER_PASSWORD
+        mode: 0444
+      - source: APP_CPTTOKEN
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-worker-periodic:
+    image: ${BPM_REPO}/bpmc_app:1.0
+    environment:
+      CPT_TYPE: worker
+      CPT_APP: periodic
+      APP_DATABASE_USER: bpm
+      APP_DATABASE_PASSWORD_FILE: /run/secrets/APP_DATABASE_PASSWORD
+      APP_DATABASE_DSN: bpmc-database:3306/bpm
+      APP_BROKER_USER: bpm
+      APP_BROKER_PASSWORD_FILE: /run/secrets/APP_BROKER_PASSWORD
+      APP_BROKER_DSN: bpmc-broker:5672
+    networks:
+      - bpm_database
+      - bpm_broker
+    secrets:
+      - source: APP_DATABASE_PASSWORD
+        mode: 0444
+      - source: APP_BROKER_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-worker-matching:
+    image: ${BPM_REPO}/bpmc_app:1.0
+    environment:
+      CPT_TYPE: worker
+      CPT_APP: matching
+      APP_DATABASE_USER: bpm
+      APP_DATABASE_PASSWORD_FILE: /run/secrets/APP_DATABASE_PASSWORD
+      APP_DATABASE_DSN: bpmc-database:3306/bpm
+      APP_BROKER_USER: bpm
+      APP_BROKER_PASSWORD_FILE: /run/secrets/APP_BROKER_PASSWORD
+      APP_BROKER_DSN: bpmc-broker:5672
+    networks:
+      - bpm_database
+      - bpm_broker
+    secrets:
+      - source: APP_DATABASE_PASSWORD
+        mode: 0444
+      - source: APP_BROKER_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-beater-periodic:
+    image: ${BPM_REPO}/bpmc_app:1.0
+    environment:
+      CPT_TYPE: beater
+      CPT_APP: periodic
+      APP_DATABASE_PASSWORD: none
+      APP_BROKER_USER: bpm
+      APP_BROKER_PASSWORD_FILE: /run/secrets/APP_BROKER_PASSWORD
+      APP_BROKER_DSN: bpmc-broker:5672
+    networks:
+      - bpm_broker
+    secrets:
+      - source: APP_BROKER_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-database:
+    image: ${BPM_REPO}/bpmc_db:1.0
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/APP_DATABASE_ROOT_PASSWORD
+      APP_DATABASE_PASSWORD_FILE: /run/secrets/APP_DATABASE_PASSWORD
+      CPT_INNODB_BUFFER_POOL_SIZE: 2G
+    networks:
+      - bpm_database
+    volumes:
+      - mysql-data:/var/lib/mysql
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+    secrets:
+      - source: APP_DATABASE_PASSWORD
+        mode: 0444
+      - source: APP_DATABASE_ROOT_PASSWORD
+        mode: 0444
+
+  bpmc-broker:
+    image: ${BPM_REPO}/bpmc_broker:1.0
+    environment:
+      RABBITMQ_ERLANG_COOKIE_FILE: /run/secrets/APP_BROKER_COOKIE
+      RABBITMQ_DEFAULT_USER: bpm
+      RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/APP_BROKER_PASSWORD
+    networks:
+      - bpm_broker
+    volumes:
+      - broker-data:/var/lib/rabbitmq/
+    hostname: broker
+    secrets:
+      - source: APP_BROKER_COOKIE
+        mode: 0444
+      - source: APP_BROKER_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  bpmc-repo:
+    image: ${BPM_REPO}/bpmc_repo:1.0
+    environment:
+      CPT_REPO_NAME: bpmc-repo
+      CPT_WEBDAV_USER: bpm
+      CPT_WEBDAV_PASSWD_FILE: /run/secrets/APP_WEBDAV_PASSWORD 
+      APP_PUBLIC_API_HOST: bpmc-api-public
+      APP_CPTTOKEN_FILE: /run/secrets/APP_CPTTOKEN
+    networks:
+      - bpm_app
+    volumes:
+      - repo-data:/var/www/webdav/files
+    secrets:
+      - source: APP_WEBDAV_PASSWORD
+        mode: 0444
+      - source: APP_CPTTOKEN
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+  
+  bpmc-proxy:
+    image: ${BPM_REPO}/bpmc_proxy:1.0
+    environment:
+      APP_PUBLIC_API_HOST: bpmc-api-public
+      APP_PUBLIC_API_PORT: 8080
+      APP_AVAILABLE_API_HOST: bpmc-api-available
+      APP_AVAILABLE_API_PORT: 8080
+    networks:
+      - bpm_app
+    ports:
+      - 443:443
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+volumes:
+  mysql-data:
+  repo-data:
+  broker-data:
+ 
+secrets:
+  APP_DATABASE_PASSWORD:
+    file: passwords/APP_DATABASE_PASSWORD
+  APP_DATABASE_ROOT_PASSWORD:
+    file: passwords/APP_DATABASE_ROOT_PASSWORD
+  APP_BROKER_PASSWORD:
+    file: passwords/APP_BROKER_PASSWORD
+  APP_ROLETOKEN:
+    file: passwords/APP_ROLETOKEN
+  APP_CPTTOKEN:
+    file: passwords/APP_CPTTOKEN
+  APP_WEBDAV_PASSWORD:
+    file: passwords/APP_WEBDAV_PASSWORD
+  APP_BROKER_COOKIE:
+    file: passwords/APP_BROKER_COOKIE
+
+networks:
+  bpm_app:
+    driver: overlay
+  bpm_database:
+    driver: overlay
+  bpm_broker:
+    driver: overlay

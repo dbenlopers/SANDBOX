@@ -1,0 +1,6 @@
+{
+    "name": "$CPT_REPO_NAME",
+    "host": "$CPT_REPO_HOST",
+    "use_ssl": false,
+    "available": true
+}

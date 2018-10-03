@@ -1,0 +1,81 @@
+[jstegle@dovel---docker-build-environment ~]$ openssl genrsa -des3 -out dovelCA.key 4096
+[jstegle@dovel---docker-build-environment ~]$ openssl req -nodes -new -x509 -key dovelCA.key -out dovelCA.crt -days 365
+Generating a 2048 bit RSA private key
+.......................+++
+....+++
+writing new private key to 'dovel.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:FR
+State or Province Name (full name) []:Alsace
+Locality Name (eg, city) [Default City]:Strasbourg
+Organization Name (eg, company) [Default Company Ltd]:GE Healthcare
+Organizational Unit Name (eg, section) []:PH8
+Common Name (eg, your name or your server's hostname) []:10.136.252.239
+Email Address []:julien.stegle@ge.com
+
+# Configuration for certificate
+[jstegle@dovel---docker-build-environment ~]$ vim dovel.csr.cnf
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+ 
+[dn]
+C=FR
+ST=Alsace
+L=Strasbourg
+O=GE Healthcare
+OU=PH8
+emailAddress=julien.stegle@ge.com
+CN = 10.136.252.239
+
+# SSL v3 configuration
+[jstegle@dovel---docker-build-environment ~]$ vim dovel.v3.ext
+
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+ 
+[alt_names]
+IP.1 = 10.136.252.239
+
+
+# Create server csr & key
+[jstegle@dovel---docker-build-environment ~]$ openssl req -new -sha256 -nodes -out dovel.csr -newkey rsa:2048 -keyout dovel.key -config <(cat dovel.csr.cnf)
+
+# Create server crt
+[jstegle@dovel---docker-build-environment ~]$ openssl x509 -req -in dovel.csr -CA dovelCA.crt -CAkey dovelCA.key -CAcreateserial -out dovel.crt -days 500 -sha256 -extfile dovel.v3.ext
+
+# Verify certificate
+[jstegle@dovel---docker-build-environment ~]$ openssl x509 -text -in dovel.crt -noout
+
+# Combine certificates to create a chain for Nginx
+[jstegle@dovel---docker-build-environment ~]$ cat dovel.crt dovelCA.crt > dovel_chain.crt
+
+
+[jstegle@dovel---docker-build-environment ~]$ sudo cp dovel_chain.crt /etc/ssl/certs/
+[jstegle@dovel---docker-build-environment ~]$ sudo cp dovel.key /etc/ssl/certs/ 
+[jstegle@dovel---docker-build-environment ~]$ sudo vim /etc/nginx/conf.d/webdav.conf
+listen 443;
+server_name dovel;
+ssl on;
+ssl_certificate       /etc/ssl/certs/dovel_chain.crt;
+ssl_certificate_key   /etc/ssl/certs/dovel.key;
+
+# Copy dovelCA.crt on the same machine as the storage manager
+
+import webdav.client as wc
+options = { .. }
+client = wc.Client(options)
+client.default_options.update({'CAINFO':r'PATH/TO/CA/FILE'})
+client.list()
+#SUCCESS

@@ -1,0 +1,7 @@
+*.pyc
+.vscode
+.sonarlint
+*.egg-info
+debug_tools
+ge.bpmc/build/
+ge.bpmc/dist/

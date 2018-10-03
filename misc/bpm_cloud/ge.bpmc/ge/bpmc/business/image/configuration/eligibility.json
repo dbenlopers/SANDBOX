@@ -1,0 +1,38 @@
+{
+	"image_laterality":{
+		"eligible":["L","R"],
+		"not_eligible":["B"]
+	},
+	"view_position":{
+		"eligible":["CC","MLO"],
+		"not_eligible":["FB","LM","LMO","SIO","ML","ISO"]
+	},
+	"body_part_examinated":{
+		"eligible":["BREAST"],
+		"not_eligible":[]
+	},
+	"photometric_interpretation":{
+		"eligible":["MONOCHROME1","MONOCHROME2"],
+		"not_eligible":["PALETTE COLOR","RGB","YBR_FULL"]
+	},
+	"manufacturer":{
+		"eligible":["GE HEALTHCARE"],
+		"not_eligible":[]
+	},
+	"manufacturer_model_name":{
+		"eligible":["Senographe Pristina"],
+		"not_eligible":[]
+	},
+	"breast_implant_present":{
+		"eligible":["NO"],
+		"not_eligible":["YES"]
+	},
+	"sop_class":{
+		"eligible":["1.2.840.10008.5.1.4.1.1.1.2.1"],
+		"not_eligible":["1.2.840.10008.5.1.4.1.1.1.2"]
+	},
+	"presentation_intent_type":{
+		"eligible":["FOR PROCESSING"],
+		"not_eligible":["FOR PRESENTATION"]
+	}  
+}

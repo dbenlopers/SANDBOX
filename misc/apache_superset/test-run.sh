@@ -1,0 +1,2 @@
+#!/bin/sh
+docker run -it -u 0 --rm -e APP_CACHE_TYPE=redis -e APP_CACHE_HOST=10.136.252.239 -e APP_CACHE_PORT=6379 -e APP_ADMIN_USER_PASSWORD=admin -e APP_DB_DRIVER=mysql+pymysql -e APP_DB_HOST=10.136.252.239 -e APP_DB_USER=root -e APP_DB_PASSWORD=root -e APP_DB_PORT=3308 -e APP_BROKER_TYPE=redis -e APP_BROKER_HOST=10.136.252.239 -e APP_BROKER_PORT=6379 ge/superset:latest

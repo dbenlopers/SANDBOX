@@ -1,0 +1,30 @@
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  default:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: simple
+    filename: ibcp.log
+    maxBytes: 10485760 # 10MB
+    backupCount: 5
+    encoding: utf8
+  console:
+      class: logging.StreamHandler
+      level: INFO
+      formatter: simple
+      stream: ext://sys.stdout
+loggers:
+  ibcp.sync:
+    level: INFO
+    handlers: [default]
+    propagate: no
+  ibcp.datalake.client:
+    level: INFO
+    handlers: [default]
+    propagate: no
+root:
+  level: INFO
+  handlers: [default]

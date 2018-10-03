@@ -1,0 +1,471 @@
+{
+  "_comments": [
+    "Syntax is",
+    "\"Entity\": {",
+    "   \"mapping\": {\"source\": \"mongodb_collection\", \"destination\": \"mysql_table\"}",
+    "   \"fields\": {\"collection_attribute\": \"table_column\", ...}",
+    "   \"rules\": {\"column_name\": \"formatting rule\"}",
+    "}",
+    "dateify substring booleanify"
+  ],
+  "entities": {
+    "AE": {
+      "fields": {
+        "aeId": "local_ae_id",
+        "aet": "aet",
+        "commonName": "common_name",
+        "contrast": "contrast",
+        "ctLogsConnection": "ftp_connection_type",
+        "innovaLogsConnection": "ftp_connection_type",
+        "dataType": "data_type",
+        "deleted": "deleted",
+        "device": "device",
+        "deviceType": "device_type",
+        "hasIntegrationRequest": "has_integration_request",
+        "ignoredSRNumbers": "ignored_sr_numbers",
+        "imageTranslator": "image_translator",
+        "ip": "ip",
+        "lastAgentUpdate": "last_updated",
+        "licensed": "licensed",
+        "manufacturer": "manufacturer",
+        "messageType": "message_type",
+        "modalityWorklistEnabled": "modality_worklist_enabled",
+        "mppsSeriesDuplicateRemoval": "mpps_series_duplicate_removal",
+        "port": "port",
+        "risAEName": "ris_ae_name",
+        "screenshotTranslator": "screenshot_translator",
+        "sdmKey": "sdm_key",
+        "secondaryDataType": "secondary_data_type",
+        "secondaryImageTranslator": "secondary_image_translator",
+        "secondaryTranslator": "secondary_translator",
+        "serialNumber": "serial_number",
+        "softwareVersion": "software_version",
+        "stationName": "station_name",
+        "systemId": "system_id",
+        "tertiaryDataType": "tertiary_data_type",
+        "tertiaryImageTranslator": "tertiary_image_translator",
+        "tertiaryTranslator": "tertiary_translator",
+        "translator": "translator",
+        "updateType": "update_type"
+      },
+      "rules": {
+        "lastAgentUpdate": {
+          "name": "dateify",
+          "args": null
+        },
+        "ctLogsConnection": {
+          "name": "replace_by",
+          "args": {
+            "condition_value": true,
+            "replacement": "CTLog"
+          }
+        },
+        "innovaLogsConnection": {
+          "name": "replace_by",
+          "args": {
+            "condition_value": true,
+            "replacement": "InnovaLog"
+          }
+        }
+      },
+      "aggregation_rules": {
+        "ftp_connection_type": "first_not_null"
+      }
+    },
+    "IntegrationMode": {
+      "fields": {
+        "modality": "modality",
+        "integrationMode": "integration_mode"
+      }
+    },
+    "Customer": {
+      "fields": {
+        "isActive": "is_active",
+        "lastUpdate": "last_update",
+        "revisionNumber": "revision_number",
+        "serialNumber": "serial_number",
+        "dosewatchVersion": "dosewatch_version",
+        "serphylinkVersion": "serphylink_version",
+        "customerName": "customer_name",
+        "projectType": "project_type",
+        "isIdentifiedAgreement": "is_identified_agreement",
+        "isImportant": "is_important",
+        "projectManager": "project_manager",
+        "applicationSpecialist": "application_specialist",
+        "dictionaryVersion": "dictionary_version",
+        "country": "country",
+        "pole": "pole",
+        "interfaces.worklist.enabled": "worklist_enabled",
+        "decommissioning": "decommissioning",
+        "interfaces.iguanaChannels.source.0": "iguana_channels",
+        "installationDate": "installation_date",
+        "state": "state",
+        "systemId": "system_id",
+        "town": "town",
+        "dealType": "deal_type",
+        "productType": "product_type",
+        "location.latitude": "latitude",
+        "location.longitude": "longitude"
+      },
+      "rules": {
+        "lastUpdate": {
+          "name": "dateify",
+          "args": null
+        },
+        "interfaces.iguanaChannels.source.0": {
+          "name": "booleanify",
+          "args": null
+        },
+        "installationDate": {
+          "name": "dateify",
+          "args": {
+            "allow_null": true
+          }
+        },
+        "systemId": {
+          "name": "substring",
+          "args": {
+            "start": 0,
+            "end": 150
+          }
+        }
+      }
+    },
+    "CustomDictionary": {
+      "fields": {
+        "_id": "local_id",
+        "code": "code",
+        "description": "description"
+      }
+    },
+    "FTPCon": {
+      "fields": {
+        "ftpCtConnection.commons.enabled": "enabled",
+        "ftpCtConnection.commons.ftpActiveModeEnabled": "active_mode_enabled",
+        "ftpCtConnection.commons.ftpSecured": "ftp_secured",
+        "ftpCtConnection.commons.ipAddress": "ip_adress",
+        "ftpCtConnection.commons.passPhrase": "pass_phrase",
+        "ftpCtConnection.commons.port": "port",
+        "ftpCtConnection.commons.privateKey": "private_key",
+        "ftpCtConnection.hoursToAddStudyDate": "data",
+        "ftpCtConnection.prodiagExamPath": "data",
+        "ftpCtConnection.protoExamPath": "data",
+        "ftpCtConnection.scanRxPath": "data",
+        "ftpCtConnection.gatewayId": "data",
+        "ftpCtConnection.imageStorageLevel": "data",
+        "ftpCtConnection.storePixelData": "data",
+        "ftpInnovaConnection.commons.enabled": "enabled",
+        "ftpInnovaConnection.commons.ftpActiveModeEnabled": "active_mode_enabled",
+        "ftpInnovaConnection.commons.ftpSecured": "ftp_secured",
+        "ftpInnovaConnection.commons.ipAddress": "ip_adress",
+        "ftpInnovaConnection.commons.passPhrase": "pass_phrase",
+        "ftpInnovaConnection.commons.port": "port",
+        "ftpInnovaConnection.commons.privateKey": "private_key",
+        "ftpInnovaConnection.filePath": "data",
+        "ftpInnovaConnection.ftpPullAfterMppsEnabled": "data"
+      },
+      "rules": {
+        "ftpCtConnection.commons.privateKey": {
+          "name": "substring",
+          "args": {
+            "start": 0,
+            "end": 100
+          }
+        }
+      },
+      "aggregation_rules": {
+        "enabled": "first_not_null",
+        "active_mode_enabled": "first_not_null",
+        "ftp_secured": "first_not_null",
+        "ip_adress": "first_not_null",
+        "pass_phrase": "first_not_null",
+        "port": "first_not_null",
+        "private_key": "first_not_null",
+        "data": "agg_in_dict"
+      }
+    },
+    "Study": {
+      "fields": {
+        "data.dwibInformationType": "type",
+        "data.measureDate": "measure_date",
+        "data.serialNumber": "serial_number",
+        "data.resultRows.aet": "aet",
+        "data.resultRows.encrypted_siuid": "encrypted_siuid",
+        "data.resultRows.study_id": "local_study_id",
+        "data.resultRows.SOFTWARE_VERSION": "software_version",
+        "data.resultRows.date_study": "start_date",
+        "data.resultRows.sdm_key": "sdm_key",
+        "data.resultRows": "translator_code",
+        "data.resultRows.fluoro_ak": "data",
+        "data.resultRows.fluoro_ak_test": "data",
+        "data.resultRows.fluoro_dap": "data",
+        "data.resultRows.fluoro_dap_test": "data",
+        "data.resultRows.record_ak": "data",
+        "data.resultRows.record_ak_test": "data",
+        "data.resultRows.record_time": "data",
+        "data.resultRows.record_time_test": "data",
+        "data.resultRows.tnrf": "data",
+        "data.resultRows.tnrf_test": "data",
+        "data.resultRows.total_ak": "data",
+        "data.resultRows.total_ak_test": "data",
+        "data.resultRows.total_dap": "data",
+        "data.resultRows.total_dap_test": "data",
+        "data.resultRows.ttf": "data",
+        "data.resultRows.ttf_test": "data",
+        "data.resultRows.num_localizers_value": "data",
+        "data.resultRows.total_dlp": "data",
+        "data.resultRows.total_dlp_test": "data",
+        "data.resultRows.entrance_dose": "data",
+        "data.resultRows.entrance_dose_test": "data",
+        "data.resultRows.organ_dose": "data",
+        "data.resultRows.organ_dose_test": "data",
+        "data.resultRows.tne": "data",
+        "data.resultRows.tne_test": "data",
+        "data.resultRows.translator_code": "translator_code",
+        "data.resultRows.image_translator_code": "image_translator_code",
+        "receptionDate": "reception_date"
+      },
+      "rules": {
+        "data.dwibInformationType": {
+          "name": "substring",
+          "args": {
+            "start": 3,
+            "end": 5
+          }
+        },
+        "data.measureDate": {
+          "name": "dateify",
+          "args": null
+        },
+        "data.resultRows.date_study": {
+          "name": "dateify",
+          "args": null
+        },
+        "receptionDate": {
+          "name": "dateify",
+          "args": null
+        }
+      },
+      "aggregation_rules": {
+        "data": "agg_in_dict"
+      }
+    },
+    "DicomPattern": {
+      "fields": {
+        "data.resultRows.SOFTWARE_VERSION": "software_version",
+        "data.resultRows.pattern.0": "message_command",
+        "data.resultRows.pattern.1": "sop_class",
+        "data.resultRows.pattern.2": "message_type",
+        "data.resultRows.pattern.3": "series_number",
+        "data.resultRows.pattern.4": "message_status",
+        "data.resultRows.pattern.6": "study_status"
+      }
+    },
+    "DicomInput": {
+      "fields": {
+        "data.measureDate": "measure_date",
+        "data.serialNumber": "serial_number",
+        "data.resultRows.aet": "aet",
+        "data.resultRows.encrypted_siuid": "encrypted_siuid",
+        "data.resultRows.datetime_first_received": "datetime_first_received",
+        "data.resultRows.datetime_last_received": "datetime_last_received",
+        "data.resultRows.pattern": "raw_patterns",
+        "receptionDate": "reception_date"
+      },
+      "rules": {
+        "data.resultRows.datetime_first_received": {
+          "name": "dateify",
+          "args": null
+        },
+        "data.resultRows.datetime_last_received": {
+          "name": "dateify",
+          "args": null
+        },
+        "receptionDate": {
+          "name": "dateify",
+          "args": null
+        },
+        "data.resultRows.pattern": {
+          "name": "listify",
+          "args": {
+            "separator": ","
+          }
+        }
+      }
+    },
+    "DicomInputPattern": {
+      "fields": {
+        "data.resultRows.pattern.5": "total_number_messages"
+      }
+    },
+    "CTLog": {
+      "fields": {
+        "data.measureDate": "measure_date",
+        "data.serialNumber": "serial_number",
+        "data.resultRows.ae_key": "local_ae_id",
+        "data.resultRows.aet": "aet",
+        "data.resultRows.parent_key": "parent_message_key",
+        "data.resultRows.exam_number": "exam_number",
+        "data.resultRows.study_key": "local_study_id",
+        "data.resultRows.datetime_first_insert": "datetime_first_insert",
+        "data.resultRows.number_of_files": "number_of_files",
+        "data.resultRows.number_of_message_type": "number_of_message_type",
+        "data.resultRows.sum_EXAM_PROTO": "sum_exam_proto",
+        "data.resultRows.sum_PROTOCOL_XML": "sum_protocol_xml",
+        "data.resultRows.sum_SCAN_REQUEST": "sum_scan_request",
+        "data.resultRows.sum_LOCALIZER": "sum_localizer",
+        "data.resultRows.sum_IMAGE": "sum_image",
+        "data.resultRows.sum_RDSR": "sum_rdsr",
+        "data.resultRows.sum_SCREENSHOT": "sum_screenshot",
+        "data.resultRows.sum_SR": "sum_sr",
+        "data.resultRows.sum_UNKNOWN": "sum_unknow",
+        "data.resultRows.sum_SCREENSHOT_CONTRAST": "sum_screenshot_contrast",
+        "data.resultRows.sum_PRODIAG_EXAM": "sum_prodiag",
+        "data.resultRows.sum_PRODIAG": "sum_prodiag_exam",
+        "data.resultRows.sum_AUTO_MA": "sum_auto_ma",
+        "data.resultRows.sum_WRONG_FILE": "sum_wrong_file",
+        "data.resultRows.message_status": "message_status",
+        "receptionDate": "reception_date"
+      },
+      "rules": {
+        "data.resultRows.datetime_first_insert": {
+          "name": "dateify",
+          "args": null
+        },
+        "receptionDate": {
+          "name": "dateify",
+          "args": null
+        }
+      }
+    },
+    "InnovaLog": {
+      "fields": {
+        "data.measureDate": "measure_date",
+        "data.serialNumber": "serial_number",
+        "data.resultRows.aet": "aet",
+        "data.resultRows.ae_key": "local_ae_id",
+        "data.resultRows.datetime_last_pull": "datetime_last_pull",
+        "data.resultRows.nb_fail": "nb_fail",
+        "data.resultRows.datetime_first_fail": "datetime_first_fail",
+        "data.resultRows.datetime_last_fail": "datetime_last_fail",
+        "receptionDate": "reception_date"
+      },
+      "rules": {
+        "data.measureDate": {
+          "name": "dateify",
+          "args": null
+        },
+        "data.resultRows.datetime_last_pull": {
+          "name": "dateify",
+          "args": null
+        },
+        "data.resultRows.datetime_first_fail": {
+          "name": "dateify",
+          "args": {
+            "allow_null": true
+          }
+        },
+        "data.resultRows.datetime_last_fail": {
+          "name": "dateify",
+          "args": {
+            "allow_null": true
+          }
+        },
+        "receptionDate": {
+          "name": "dateify",
+          "args": null
+        }
+      }
+    },
+    "ConnectivityList": {
+      "fields": {
+        "doseWatchVersion": "dosewatch_version",
+        "deviceVersion": "device_version",
+        "revisionNumber": "revision_number",
+        "priority": "priority",
+        "difficulty": "difficulty",
+        "lastUpdate": "last_update"
+      },
+      "rules": {
+        "lastUpdate": {
+          "name": "dateify",
+          "args": {
+            "allow_null": true
+          }
+        }
+      }
+    },
+    "Device": {
+      "fields": {
+        "name": "name",
+        "sdmKey": "id",
+        "type": "type",
+        "manufacturer": "manufacturer",
+        "isDeleted": "is_deleted",
+        "characteristics": "characteristics",
+        "alternateName": "alternate_name",
+        "lastUpdate": "last_update"
+      },
+      "rules": {
+        "lastUpdate": {
+          "name": "dateify",
+          "args": {
+            "allow_null": true
+          }
+        }
+      }
+    },
+    "TranslatorConfig": {
+      "fields": {
+        "allowMppsSeriesDuplicateRemoval": "allow_mpps_series_duplicate_removal",
+        "contrast": "contrast",
+        "deleted": "deleted",
+        "deviceName": "device_name",
+        "deviceVersion": "device_version",
+        "doseWatchLowerVersionBound.tuple.0": "dosewatch_lower_version_bound",
+        "doseWatchLowerVersionBound.tuple.1": "dosewatch_lower_version_bound",
+        "doseWatchLowerVersionBound.tuple.2": "dosewatch_lower_version_bound",
+        "doseWatchUpperVersionBound.tuple.0": "dosewatch_upper_version_bound",
+        "doseWatchUpperVersionBound.tuple.1": "dosewatch_upper_version_bound",
+        "doseWatchUpperVersionBound.tuple.2": "dosewatch_upper_version_bound",
+        "integrationMode": "integration_mode",
+        "manufacturer": "manufacturer",
+        "modality": "modality",
+        "updateDate": "update_date",
+        "datatype.name": "data_type",
+        "datatype.translator._id": "translator_id",
+        "datatype.translator.default": "translator_default",
+        "datatype.translator.name": "translator_code",
+        "datatype.imageTranslator._id": "image_translator_id",
+        "datatype.imageTranslator.default": "image_translator_default",
+        "datatype.imageTranslator.name": "image_translator_code",
+        "secondaryDatatype.name": "secondary_data_type",
+        "secondaryDatatype.translator._id": "secondary_translator_id",
+        "secondaryDatatype.translator.default": "secondary_translator_default",
+        "secondaryDatatype.translator.name": "secondary_translator_code",
+        "secondaryDatatype.imageTranslator._id": "secondary_image_translator_id",
+        "secondaryDatatype.imageTranslator.default": "secondary_image_translator_default",
+        "secondaryDatatype.imageTranslator.name": "secondary_image_translator_code",
+        "tertiaryDatatype.name": "tertiary_data_type",
+        "tertiaryDatatype.translator._id": "tertiary_translator_id",
+        "tertiaryDatatype.translator.default": "tertiary_translator_default",
+        "tertiaryDatatype.translator.name": "tertiary_translator_code",
+        "tertiaryDatatype.imageTranslator._id": "tertiary_image_translator_id",
+        "tertiaryDatatype.imageTranslator.default": "tertiary_image_translator_default",
+        "tertiaryDatatype.imageTranslator.name": "tertiary_image_translator_code"
+      },
+      "rules": {
+        "updateDate": {
+          "name": "dateify",
+          "args": {
+            "allow_null": true
+          }
+        }
+      },
+      "aggregation_rules": {
+        "dosewatch_lower_version_bound": "agg_version",
+        "dosewatch_upper_version_bound": "agg_version"
+      }
+    }
+  }
+}

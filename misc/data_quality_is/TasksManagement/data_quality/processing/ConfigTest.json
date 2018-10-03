@@ -1,0 +1,164 @@
+{
+  "Dosimetric": {
+    "default": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK", "ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK", "LIMITED"],
+          "low_dose_mitigate_rule": ["NOK", "LIMITED"]
+        }
+      }
+    },
+    "fluoro_ak": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "fluoro_dap": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "record_ak": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "record_time": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": [
+            "NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "tnrf": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "total_ak": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "total_dap": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "ttf": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "total_dlp": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        },
+        "dec_tol": {
+          "thres": 0.1,
+          "fail_rule": ["OK","WARNING"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "entrance_dose": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "organ_dose": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "tne": {
+      "equality": {
+        "rel_tol": {
+          "thres": 0.05,
+          "fail_rule": ["NOK","ERROR"],
+          "low_dose": 0,
+          "low_dose_rule": ["OK","LIMITED"],
+          "low_dose_mitigate_rule": ["NOK","LIMITED"]
+        }
+      }
+    },
+    "CT_localizers_value": {
+      "threshold": 10
+    }
+  },
+  "Pattern": {
+    "ModalitySKipping": ["RIS", "PACS"],
+    "DicomMajorOutageStatus": ["E"],
+    "DicomProcessStatus": ["C", "I", "F"],
+    "DicomSkipProcess": []
+  }
+}

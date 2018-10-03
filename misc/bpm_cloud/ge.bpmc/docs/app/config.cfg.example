@@ -1,0 +1,44 @@
+[database]
+dsn=mysql+pymysql://root:root@10.136.252.239:3306/bpm
+
+[broker]
+dsn=amqp://guest:guest@10.136.252.239:2001
+
+[webdav_opts]
+# Whether of not to use HTTPS when connecting to repositories
+use_ssl=true
+
+# In case of proxy...
+# proxy_hostname=
+# proxy_login=
+# proxy_password=
+
+# If you want to login using certificate
+# ssl_auth_cert_path=
+# ssl_auth_key_path=
+
+# Basic authentication
+auth_login=dave
+auth_password=dave
+
+[webdav_client_opts]
+# Allows to that the certificate authority to accept self signed certificates
+verify=C:\Users\502676073\Documents\4-IB\BPM\dovelCA.crt
+
+[storage]
+# Storage API host:port
+uri=localhost:9080
+# Storage API protocol to use (http or https)
+proto=http
+
+[application]
+# Allows the application (apis only) to deploy the default scheme
+ignite=false
+# Activate profiling if required
+profiling=false
+# Expected consumer role token to grant access to apis
+roletoken=ad99c8763891f053a9e252d10a14b21eefec27b70178697f9fbe975abaa52ae918a55a4613f85ae32f054adb3cf591175653
+cpnttoken=409bc18c7b7eb91d9b10666d1dccf683bb785c51a6d4d9f3f08b83e393077f8e722f426080a38e56c82ae241bfbf138d2c63
+
+[logging]
+configuration=C:\Users\502676073\Documents\4-IB\BPM\bpm_cloud\logging.yml

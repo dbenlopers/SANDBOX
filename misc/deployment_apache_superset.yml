@@ -1,0 +1,136 @@
+version: '3.4'
+
+services:
+  redis-srv:
+    image: 127.0.0.1:5000/redis:latest
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+      - redis-data:/data
+    networks:
+      - messaging
+      - caching
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 15s
+
+  database-superset:
+    image: 127.0.0.1:5000/superset-db:1.0
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+      - db-superset:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - data
+    environment:
+      - APP_ROOT_PASSWORD_FILE=/run/secrets/APP_DB_ROOT_PASSWORD
+      - APP_SUPERSET_PASSWORD_FILE=/run/secrets/APP_DB_SUPERSET_PASSWORD
+      - APP_INNODB_BUFFER_POOL_SIZE=2G
+    secrets:
+      - source: APP_DB_ROOT_PASSWORD
+        mode: 0444
+      - source: APP_DB_SUPERSET_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 15s
+
+  superset:
+    image: 127.0.0.1:5000/superset:1.2
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+    ports:
+      - 8088:8088
+    networks:
+      - data
+      - caching
+      - messaging
+    environment:
+      - APP_CACHE_TYPE=redis
+      - APP_CACHE_HOST=redis-srv
+      - APP_CACHE_PORT=6379
+      - APP_ADMIN_USER_PASSWORD_FILE=/run/secrets/APP_ADMIN_USER_PASSWORD
+      - APP_DB_DRIVER=mysql+pymysql
+      - APP_DB_HOST=database-superset
+      - APP_DB_PORT=3306
+      - APP_DB_USER=superset
+      - APP_DB_PASSWORD_FILE=/run/secrets/APP_DB_SUPERSET_PASSWORD
+      - APP_BROKER_TYPE=redis
+      - APP_BROKER_HOST=redis-srv
+      - APP_BROKER_PORT=6379
+      - APP_SUPERSET_MODE=default
+    secrets:
+      - source: APP_ADMIN_USER_PASSWORD
+        mode: 0444
+      - source: APP_DB_SUPERSET_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  superset-worker:
+    image: 127.0.0.1:5000/superset:1.2
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+    networks:
+      - data
+      - caching
+      - messaging
+    environment:
+      - APP_CACHE_TYPE=redis
+      - APP_CACHE_HOST=redis-srv
+      - APP_CACHE_PORT=6379
+      - APP_ADMIN_USER_PASSWORD_FILE=/run/secrets/APP_ADMIN_USER_PASSWORD
+      - APP_DB_DRIVER=mysql+pymysql
+      - APP_DB_HOST=database-superset
+      - APP_DB_PORT=3306
+      - APP_DB_USER=superset
+      - APP_DB_PASSWORD_FILE=/run/secrets/APP_DB_SUPERSET_PASSWORD
+      - APP_BROKER_TYPE=redis
+      - APP_BROKER_HOST=redis-srv
+      - APP_BROKER_PORT=6379
+      - APP_SUPERSET_MODE=worker
+    secrets:
+      - source: APP_ADMIN_USER_PASSWORD
+        mode: 0444
+      - source: APP_DB_SUPERSET_PASSWORD
+        mode: 0444
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+volumes:
+  redis-data:
+  db-superset:
+
+secrets:
+  APP_DB_ROOT_PASSWORD:
+    file: passwords/APP_DB_ROOT_PASSWORD
+  APP_DB_SUPERSET_PASSWORD:
+    file: passwords/APP_DB_SUPERSET_PASSWORD
+  APP_ADMIN_USER_PASSWORD:
+    file: passwords/APP_ADMIN_USER_PASSWORD
+
+networks:
+  messaging:
+    driver: overlay
+  caching:
+    driver: overlay
+  data:
+    driver: overlay

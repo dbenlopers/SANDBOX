@@ -1,0 +1,20 @@
+[database]
+engine=driver(+dialect)
+host=127.0.0.1
+schema=schema
+user=user
+password=XXXXXX
+port=3306
+
+[webdav_opts]
+# proxy_hostname=
+# proxy_login=
+# proxy_password=
+# ssl_auth_cert_path=
+# ssl_auth_key_path=
+# auth_login=my_login
+# auth_password=my_password
+
+[webdav_client_opts]
+# verify=path\to\ca\cert
+

@@ -1,0 +1,2 @@
+-- use broker_config.py as example --
+celery -A ge.bpmc.tasks.processing worker --config broker_config -Q processing -P eventlet -l info
